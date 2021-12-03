@@ -1,0 +1,9 @@
+{
+  "friendId": "Mario",
+  "inFriendshipWithId": "DonkeyKong",
+  "friendOfFriendId": "Pauline",
+  "mutualFriendsId": [
+    "Luigi"
+  ],
+  "nbOfMutualFriends": 1
+}

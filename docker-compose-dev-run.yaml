@@ -1,0 +1,72 @@
+version: '3'
+
+services:
+
+  arangodb:
+    image: arangodb:3.8.3
+    ports:
+      - 8529:8529
+    environment:
+      - ARANGO_ROOT_PASSWORD=password
+      - ARANGODB_OVERRIDE_DETECTED_TOTAL_MEMORY=100m
+
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:1.25.0
+    ports:
+      - "16686:16686"
+      - "14268"
+      - "14250"
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.33.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "13133:13133" # Health_check extension
+      - "4317"        # OTLP gRPC receiver
+      - "55680:55680" # OTLP gRPC receiver alternative port
+    depends_on:
+      - jaeger-all-in-one
+
+  mutable:
+    image: debezium/postgres:11-alpine
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=mutable
+      - POSTGRES_USER=postgresql
+      - POSTGRES_PASSWORD=postgresql
+
+  kafka:
+    image: vectorized/redpanda:v21.9.6
+    ports:
+      - 9092
+    command: redpanda start --smp 1 --reserve-memory 0M --overprovisioned --node-id 0 --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092 --advertise-kafka-addr PLAINTEXT://kafka:29092,OUTSIDE://kafka:9092
+
+  connect:
+    image: debezium/connect:1.8
+    ports:
+      - 8083:8083
+    environment:
+      - KAFKA_LOG4J_OPTS=-Dlog4j.configuration=file:/opt/kafka/config/connect-log4j.properties
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+    depends_on:
+      - mutable
+      - kafka
+
+  kafka_ui:
+    image: provectuslabs/kafka-ui:0.2.1
+    ports:
+      - 8081:8080
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+    depends_on:
+      - kafka

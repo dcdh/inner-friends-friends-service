@@ -1,0 +1,9 @@
+{
+  "pseudo": "Mario",
+  "bio": "super plumber",
+  "friends": [
+    "DamDamDeo"
+  ],
+  "nbOfFriends": 1,
+  "version": 1
+}
