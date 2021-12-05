@@ -1,12 +1,10 @@
 package com.innerfriends.friends.infrastructure;
 
 import com.innerfriends.friends.domain.*;
-import com.innerfriends.friends.domain.usecase.RegisterANewFriendIntoThePlatformCommand;
 import com.innerfriends.friends.infrastructure.bus.producer.KafkaConnectorApi;
 import com.innerfriends.friends.infrastructure.bus.producer.OutboxConnectorStarter;
 import com.innerfriends.friends.infrastructure.postgres.FriendEntity;
 import com.innerfriends.friends.infrastructure.postgres.InvitationCodeGeneratedEntity;
-import com.innerfriends.friends.infrastructure.usecase.ManagedRegisterANewFriendIntoThePlatformUseCase;
 import io.quarkus.test.junit.QuarkusTest;
 import io.vertx.core.json.JsonObject;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -37,9 +35,6 @@ import static org.hamcrest.Matchers.equalTo;
 public class E2ETest {
 
     @Inject
-    ManagedRegisterANewFriendIntoThePlatformUseCase managedRegisterANewFriendIntoThePlatformUseCase;
-
-    @Inject
     OutboxConnectorStarter outboxConnectorStarter;
 
     @Inject
@@ -60,6 +55,9 @@ public class E2ETest {
 
     @Inject
     ArangoDBFriends arangoDBFriends;
+
+    @Inject
+    KeycloakAdminClient keycloakAdminClient;
 
     @BeforeEach
     public void setup() {
@@ -99,7 +97,8 @@ public class E2ETest {
         // Given
 
         // When
-        managedRegisterANewFriendIntoThePlatformUseCase.execute(new RegisterANewFriendIntoThePlatformCommand(new NewPseudoId("Mario")));
+        keycloakAdminClient.register("Mario");
+        waitForFriendToBeRegistered("Mario");
 
         // Then
         final Friend expectedMario = new Friend(new FriendId("Mario"));
@@ -123,7 +122,8 @@ public class E2ETest {
         // Given
 
         // When
-        managedRegisterANewFriendIntoThePlatformUseCase.execute(new RegisterANewFriendIntoThePlatformCommand(new NewPseudoId("Peach")));
+        keycloakAdminClient.register("Peach");
+        waitForFriendToBeRegistered("Peach");
 
         // Then
         final Friend expectedPeach = new Friend(new FriendId("Peach"));
@@ -146,7 +146,8 @@ public class E2ETest {
         // Given
 
         // When
-        managedRegisterANewFriendIntoThePlatformUseCase.execute(new RegisterANewFriendIntoThePlatformCommand(new NewPseudoId("Luigi")));
+        keycloakAdminClient.register("Luigi");
+        waitForFriendToBeRegistered("Luigi");
 
         // Then
         final Friend expectedLuigi = new Friend(new FriendId("Luigi"));
@@ -401,6 +402,13 @@ public class E2ETest {
                 "PostgresFriendRepository:save");
         assertThat(traces.getHttpStatus()).containsExactlyInAnyOrder(200);
         assertThat(traces.getOperationNamesInError()).isEmpty();
+    }
+
+    private void waitForFriendToBeRegistered(final String friendId) {
+        Awaitility.await()
+                .atMost(Durations.TEN_SECONDS)
+                .pollInterval(Durations.ONE_HUNDRED_MILLISECONDS).until(() ->
+                    runInTransaction(() -> entityManager.find(FriendEntity.class, friendId)) != null);
     }
 
     // TODO DonkeyKong, Pauline !!!

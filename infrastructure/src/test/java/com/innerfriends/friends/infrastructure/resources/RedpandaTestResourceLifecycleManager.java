@@ -164,6 +164,21 @@ public class RedpandaTestResourceLifecycleManager implements QuarkusTestResource
             put("mp.messaging.incoming.establish-friendship-saga.bootstrap.servers",
                     String.format("%s:%s", "localhost", redpandaContainer.getMappedPort(9092)));
             put("mp.messaging.incoming.establish-friendship-saga.auto.offset.reset", "earliest");
+            // keycloak-user-attribute
+            put("mp.messaging.incoming.keycloak-user-attribute.connector", "smallrye-kafka");
+            put("mp.messaging.incoming.keycloak-user-attribute.topic", "keycloak-db.public.user_attribute");
+            put("mp.messaging.incoming.keycloak-user-attribute.group.id", "keycloak-user-attribute");
+            put("mp.messaging.incoming.keycloak-user-attribute.key.deserializer", "io.vertx.kafka.client.serialization.JsonObjectDeserializer");
+            put("mp.messaging.incoming.keycloak-user-attribute.value.deserializer", "io.vertx.kafka.client.serialization.JsonObjectDeserializer");
+            put("mp.messaging.incoming.keycloak-user-attribute.bootstrap.servers",
+                    String.format("%s:%s", "localhost", redpandaContainer.getMappedPort(9092)));
+            put("mp.messaging.incoming.keycloak-user-attribute.auto.offset.reset", "earliest");
+            // keycloak
+            put("quarkus.oidc.auth-server-url", String.format("http://localhost:%d/auth/realms/public", keycloakContainer.getMappedPort(8080)));
+            put("keycloak.admin.adminRealm", "master");
+            put("keycloak.admin.clientId", "admin-cli");
+            put("keycloak.admin.username", keycloakContainer.getEnvMap().get("KEYCLOAK_USER"));
+            put("keycloak.admin.password", keycloakContainer.getEnvMap().get("KEYCLOAK_PASSWORD"));
         }};
     }
 

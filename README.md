@@ -111,3 +111,12 @@ Regarding running redpanda using `testcontainers` we need to inject the containe
 > connect to `redpanda` container
 >
 > rpk topic consume Conversation.events
+
+### Keycloak
+
+> topic name: keycloak-db.public.user_attribute
+>
+> Key: "{\"id\":\"323ac6d1-860a-435c-82d1-ccd5eceec2b2\"}"
+> 
+> Value: "{\"before\":null,\"after\":{\"name\":\"friendId\",\"value\":\"DamDamDeo\",\"user_id\":\"9e5d1138-4505-4f3a-ac76-e74f8f27f7b4\",\"id\":\"323ac6d1-860a-435c-82d1-ccd5eceec2b2\"},\"source\":{\"version\":\"1.8.0.Alpha2\",\"connector\":\"postgresql\",\"name\":\"keycloak-db\",\"ts_ms\":1638722229490,\"snapshot\":\"last\",\"db\":\"keycloak\",\"sequence\":\"[null,\\\"28745256\\\"]\",\"schema\":\"public\",\"table\":\"user_attribute\",\"txId\":754,\"lsn\":28745256,\"xmin\":null},\"op\":\"r\",\"ts_ms\":1638722229491,\"transaction\":null}"
+
