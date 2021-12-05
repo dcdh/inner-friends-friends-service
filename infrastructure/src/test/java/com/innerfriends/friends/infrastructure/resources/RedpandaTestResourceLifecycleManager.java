@@ -1,6 +1,7 @@
 package com.innerfriends.friends.infrastructure.resources;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import io.restassured.http.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
@@ -10,14 +11,21 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+
+import static io.restassured.RestAssured.given;
 
 public class RedpandaTestResourceLifecycleManager implements QuarkusTestResourceLifecycleManager {
 
     private final Logger logger = LoggerFactory.getLogger(RedpandaTestResourceLifecycleManager.class);
 
-    private PostgreSQLContainer<?> postgresContainer;
+    private PostgreSQLContainer<?> postgresMutableContainer;
+
+    private PostgreSQLContainer<?> postgresKeycloakContainer;
+
+    private GenericContainer<?> keycloakContainer;
 
     private GenericContainer<?> redpandaContainer;
 
@@ -31,7 +39,7 @@ public class RedpandaTestResourceLifecycleManager implements QuarkusTestResource
     public Map<String, String> start() {
         final Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(logger);
         network = Network.newNetwork();
-        postgresContainer = new PostgreSQLContainer<>(
+        postgresMutableContainer = new PostgreSQLContainer<>(
                 DockerImageName.parse("debezium/postgres:11-alpine")
                         .asCompatibleSubstituteFor("postgres"))
                 .withNetwork(network)
@@ -40,8 +48,32 @@ public class RedpandaTestResourceLifecycleManager implements QuarkusTestResource
                 .withUsername("postgresql")
                 .withPassword("postgresql")
                 .waitingFor(Wait.forLogMessage(".*database system is ready to accept connections.*", 1));
-        postgresContainer.start();
-        postgresContainer.followOutput(logConsumer);
+        postgresMutableContainer.start();
+        postgresMutableContainer.followOutput(logConsumer);
+        postgresKeycloakContainer = new PostgreSQLContainer<>(
+                DockerImageName.parse("debezium/postgres:11-alpine")
+                        .asCompatibleSubstituteFor("postgres"))
+                .withNetwork(network)
+                .withNetworkAliases("keycloak-db")
+                .withDatabaseName("keycloak")
+                .withUsername("keycloak")
+                .withPassword("keycloak")
+                .waitingFor(Wait.forLogMessage(".*database system is ready to accept connections.*", 1));
+        postgresKeycloakContainer.start();
+        postgresKeycloakContainer.followOutput(logConsumer);
+        keycloakContainer = new GenericContainer<>("damdamdeo/inner-friends-keycloack")
+                .withNetwork(network)
+                .withExposedPorts(8080)
+                .withEnv("KEYCLOAK_USER", "keycloak")
+                .withEnv("KEYCLOAK_PASSWORD", "keycloak")
+                .withEnv("DB_VENDOR", "postgres")
+                .withEnv("DB_ADDR", "keycloak-db:5432")
+                .withEnv("DB_DATABASE", "keycloak")
+                .withEnv("DB_USER", "keycloak")
+                .withEnv("DB_PASSWORD", "keycloak")
+                .waitingFor(Wait.forLogMessage(".* Admin console listening on.*", 1));
+        keycloakContainer.start();
+        keycloakContainer.followOutput(logConsumer);
         redpandaContainer = new RedPandaKafkaContainer(network);
         redpandaContainer.start();
         redpandaContainer.followOutput(logConsumer);
@@ -66,17 +98,49 @@ public class RedpandaTestResourceLifecycleManager implements QuarkusTestResource
                 .withEnv("KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS", "redpanda:9092");
         kafkaUiContainer.start();
 
+        // Start connector on Keycloak
+        final String connectorSetup = "{\n" +
+                "  \"name\": \"keycloak-connector\",\n" +
+                "  \"config\": {\n" +
+                "    \"connector.class\": \"io.debezium.connector.postgresql.PostgresConnector\",\n" +
+                "    \"database.hostname\": \"keycloak-db\",\n" +
+                "    \"database.port\": \"5432\",\n" +
+                "    \"slot.name\": \"keycloak_debezium\",\n" +
+                "    \"plugin.name\": \"pgoutput\",\n" +
+                "    \"database.user\": \"keycloak\",\n" +
+                "    \"database.password\": \"keycloak\",\n" +
+                "    \"database.dbname\": \"keycloak\",\n" +
+                "    \"database.server.name\": \"keycloak-db\",\n" +
+                "    \"schema.include.list\": \"public\",\n" +
+                "    \"table.include.list\": \"public.user_attribute\",\n" +
+                "    \"topic.creation.default.replication.factor\": -1,\n" +
+                "    \"topic.creation.default.partitions\": 1,\n" +
+                "    \"topic.creation.default.cleanup.policy\": \"compact\",\n" +
+                "    \"key.converter\": \"org.apache.kafka.connect.json.JsonConverter\",\n" +
+                "    \"key.converter.schemas.enable\": \"false\",\n" +
+                "    \"value.converter\": \"org.apache.kafka.connect.json.JsonConverter\",\n" +
+                "    \"value.converter.schemas.enable\": \"false\"\n" +
+                "  }\n" +
+                "}";
+        given()
+                .body(connectorSetup)
+                .contentType(ContentType.JSON)
+                .post(URI.create(String.format("http://localhost:%d/connectors/", debeziumConnectContainer.getMappedPort(8083))))
+                .then()
+                .log().all()
+                .statusCode(201);
+
         return new HashMap<>() {{
-            put("quarkus.datasource.jdbc.url", postgresContainer.getJdbcUrl());
-            put("quarkus.datasource.username", postgresContainer.getUsername());
-            put("quarkus.datasource.password", postgresContainer.getPassword());
+            put("quarkus.datasource.jdbc.url", postgresMutableContainer.getJdbcUrl());
+            put("quarkus.datasource.username", postgresMutableContainer.getUsername());
+            put("quarkus.datasource.password", postgresMutableContainer.getPassword());
             put("kafka-connector-api/mp-rest/url",
                     String.format("http://%s:%d", "localhost", debeziumConnectContainer.getMappedPort(8083)));
             put("connector.mutable.database.hostname", "mutable");
-            put("connector.mutable.database.username", postgresContainer.getUsername());
-            put("connector.mutable.database.password", postgresContainer.getPassword());
+            put("connector.mutable.database.username", postgresMutableContainer.getUsername());
+            put("connector.mutable.database.password", postgresMutableContainer.getPassword());
             put("connector.mutable.database.port", "5432");
-            put("connector.mutable.database.dbname", postgresContainer.getDatabaseName());
+            put("connector.mutable.database.dbname", postgresMutableContainer.getDatabaseName());
             put("slot.drop.on.stop", "true");
             put("snapshot.mode", "always");
             put("connector.mutable.enabled", "true");
@@ -105,8 +169,14 @@ public class RedpandaTestResourceLifecycleManager implements QuarkusTestResource
 
     @Override
     public void stop() {
-        if (postgresContainer != null) {
-            postgresContainer.close();
+        if (postgresMutableContainer != null) {
+            postgresMutableContainer.close();
+        }
+        if (postgresKeycloakContainer != null) {
+            postgresKeycloakContainer.close();
+        }
+        if (keycloakContainer != null) {
+            keycloakContainer.close();
         }
         if (redpandaContainer != null) {
             redpandaContainer.close();
