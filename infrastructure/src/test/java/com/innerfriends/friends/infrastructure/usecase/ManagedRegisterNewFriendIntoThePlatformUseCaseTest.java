@@ -3,8 +3,8 @@ package com.innerfriends.friends.infrastructure.usecase;
 import com.innerfriends.friends.domain.Friend;
 import com.innerfriends.friends.domain.FriendId;
 import com.innerfriends.friends.domain.NewPseudoId;
-import com.innerfriends.friends.domain.usecase.RegisterANewFriendIntoThePlatformCommand;
-import com.innerfriends.friends.domain.usecase.RegisterANewFriendIntoThePlatformUseCase;
+import com.innerfriends.friends.domain.usecase.RegisterNewFriendIntoThePlatformCommand;
+import com.innerfriends.friends.domain.usecase.RegisterNewFriendIntoThePlatformUseCase;
 import com.innerfriends.friends.infrastructure.InstantProvider;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
@@ -20,13 +20,13 @@ import static org.mockito.Mockito.doReturn;
 
 @QuarkusTest
 @ExtendWith(MockitoExtension.class)
-public class ManagedRegisterANewFriendIntoThePlatformUseCaseTest extends ManagedUseCaseTest {
+public class ManagedRegisterNewFriendIntoThePlatformUseCaseTest extends ManagedUseCaseTest {
 
     @Inject
-    ManagedRegisterANewFriendIntoThePlatformUseCase managedRegisterANewFriendIntoThePlatformUseCase;
+    ManagedRegisterNewFriendIntoThePlatformUseCase managedRegisterNewFriendIntoThePlatformUseCase;
 
     @InjectMock
-    RegisterANewFriendIntoThePlatformUseCase registerANewFriendIntoThePlatformUseCase;
+    RegisterNewFriendIntoThePlatformUseCase registerNewFriendIntoThePlatformUseCase;
 
     @InjectMock
     InstantProvider instantProvider;
@@ -35,13 +35,13 @@ public class ManagedRegisterANewFriendIntoThePlatformUseCaseTest extends Managed
     public void should_register_a_new_friend_into_the_platform() {
         // Given
         final Friend mario = new Friend(new FriendId("Mario"));
-        final RegisterANewFriendIntoThePlatformCommand registerANewFriendIntoThePlatformCommand
-                = new RegisterANewFriendIntoThePlatformCommand(new NewPseudoId("Mario"));
-        doReturn(mario).when(registerANewFriendIntoThePlatformUseCase).execute(registerANewFriendIntoThePlatformCommand);
+        final RegisterNewFriendIntoThePlatformCommand registerNewFriendIntoThePlatformCommand
+                = new RegisterNewFriendIntoThePlatformCommand(new NewPseudoId("Mario"));
+        doReturn(mario).when(registerNewFriendIntoThePlatformUseCase).execute(registerNewFriendIntoThePlatformCommand);
         doReturn(Instant.ofEpochSecond(1)).when(instantProvider).now();
 
         // When && Then
-        assertThat(managedRegisterANewFriendIntoThePlatformUseCase.execute(registerANewFriendIntoThePlatformCommand))
+        assertThat(managedRegisterNewFriendIntoThePlatformUseCase.execute(registerNewFriendIntoThePlatformCommand))
                 .isEqualTo(mario);
         assertThat(((Number) entityManager.createNativeQuery(COUNT_OUTBOX_EVENT_FOR_AGGREGATE_ID_SQL)
                 .setParameter(1, "Mario")
@@ -49,7 +49,7 @@ public class ManagedRegisterANewFriendIntoThePlatformUseCaseTest extends Managed
         assertThat(entityManager.createNativeQuery(GET_TYPE_BY_AGGREGATE_ID)
                 .setParameter(1, "Mario")
                 .getSingleResult())
-                .isEqualTo("ANewFriendRegisteredIntoThePlatform");
+                .isEqualTo("NewFriendRegisteredIntoThePlatform");
     }
 
 }

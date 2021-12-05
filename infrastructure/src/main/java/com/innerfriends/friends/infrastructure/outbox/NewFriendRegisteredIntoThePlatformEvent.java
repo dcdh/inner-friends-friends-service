@@ -12,25 +12,25 @@ import com.innerfriends.friends.infrastructure.InstantProvider;
 import java.time.Instant;
 import java.util.Objects;
 
-public final class ANewFriendRegisteredIntoThePlatformEvent implements FriendExportedEvent {
+public final class NewFriendRegisteredIntoThePlatformEvent implements FriendExportedEvent {
 
-    public static final String TYPE = "ANewFriendRegisteredIntoThePlatform";
+    public static final String TYPE = "NewFriendRegisteredIntoThePlatform";
 
     private final FriendId friendId;
     private final JsonNode newFriendRegisteredIntoThePlatform;
     private final Instant timestamp;
 
-    private ANewFriendRegisteredIntoThePlatformEvent(final FriendId friendId,
-                                                     final JsonNode newFriendRegisteredIntoThePlatform,
-                                                     final Instant timestamp) {
+    private NewFriendRegisteredIntoThePlatformEvent(final FriendId friendId,
+                                                    final JsonNode newFriendRegisteredIntoThePlatform,
+                                                    final Instant timestamp) {
         this.friendId = Objects.requireNonNull(friendId);
         this.newFriendRegisteredIntoThePlatform = Objects.requireNonNull(newFriendRegisteredIntoThePlatform);
         this.timestamp = Objects.requireNonNull(timestamp);
     }
 
-    public static ANewFriendRegisteredIntoThePlatformEvent of(final Friend newFriendRegistered,
-                                                              final ObjectMapper objectMapper,
-                                                              final InstantProvider instantProvider) {
+    public static NewFriendRegisteredIntoThePlatformEvent of(final Friend newFriendRegistered,
+                                                             final ObjectMapper objectMapper,
+                                                             final InstantProvider instantProvider) {
         final ObjectNode asJson = objectMapper.createObjectNode()
                 .put("friendId", newFriendRegistered.friendId().pseudo())
                 .put("version", newFriendRegistered.version().value());
@@ -39,7 +39,7 @@ public final class ANewFriendRegisteredIntoThePlatformEvent implements FriendExp
                 .stream()
                 .map(InFriendshipWithId::pseudo)
                 .forEach(pseudo -> inFriendshipsWith.add(pseudo));
-        return new ANewFriendRegisteredIntoThePlatformEvent(newFriendRegistered.friendId(), asJson, instantProvider.now());
+        return new NewFriendRegisteredIntoThePlatformEvent(newFriendRegistered.friendId(), asJson, instantProvider.now());
     }
 
     @Override

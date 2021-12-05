@@ -1,9 +1,9 @@
 package com.innerfriends.friends.infrastructure.bus.consumer.keycloak;
 
 import com.innerfriends.friends.domain.NewPseudoId;
-import com.innerfriends.friends.domain.usecase.RegisterANewFriendIntoThePlatformCommand;
+import com.innerfriends.friends.domain.usecase.RegisterNewFriendIntoThePlatformCommand;
 import com.innerfriends.friends.infrastructure.postgres.FriendEntity;
-import com.innerfriends.friends.infrastructure.usecase.ManagedRegisterANewFriendIntoThePlatformUseCase;
+import com.innerfriends.friends.infrastructure.usecase.ManagedRegisterNewFriendIntoThePlatformUseCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,12 +18,12 @@ public class KeycloakUserAttributeCreatedHandler {
     private static final Logger LOG = LoggerFactory.getLogger(KeycloakUserAttributeCreatedHandler.class);
 
     private final EntityManager entityManager;
-    private final ManagedRegisterANewFriendIntoThePlatformUseCase managedRegisterANewFriendIntoThePlatformUseCase;
+    private final ManagedRegisterNewFriendIntoThePlatformUseCase managedRegisterNewFriendIntoThePlatformUseCase;
 
     public KeycloakUserAttributeCreatedHandler(final EntityManager entityManager,
-                                               final ManagedRegisterANewFriendIntoThePlatformUseCase managedRegisterANewFriendIntoThePlatformUseCase) {
+                                               final ManagedRegisterNewFriendIntoThePlatformUseCase managedRegisterNewFriendIntoThePlatformUseCase) {
         this.entityManager = Objects.requireNonNull(entityManager);
-        this.managedRegisterANewFriendIntoThePlatformUseCase = Objects.requireNonNull(managedRegisterANewFriendIntoThePlatformUseCase);
+        this.managedRegisterNewFriendIntoThePlatformUseCase = Objects.requireNonNull(managedRegisterNewFriendIntoThePlatformUseCase);
     }
 
     @Transactional
@@ -31,7 +31,7 @@ public class KeycloakUserAttributeCreatedHandler {
         LOG.info("Received created attribute '{}' with value '{}'", name, value);
         if ("friendId".equals(name)) {
             if (entityManager.find(FriendEntity.class, value) == null) {
-                managedRegisterANewFriendIntoThePlatformUseCase.execute(new RegisterANewFriendIntoThePlatformCommand(new NewPseudoId(value)));
+                managedRegisterNewFriendIntoThePlatformUseCase.execute(new RegisterNewFriendIntoThePlatformCommand(new NewPseudoId(value)));
             }
         } else {
             LOG.info("Unknown attribute name created '{}' - ignored.", name);

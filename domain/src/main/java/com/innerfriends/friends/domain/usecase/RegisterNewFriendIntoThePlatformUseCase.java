@@ -7,16 +7,16 @@ import com.innerfriends.friends.domain.UseCase;
 
 import java.util.Objects;
 
-public class RegisterANewFriendIntoThePlatformUseCase implements UseCase<Friend, RegisterANewFriendIntoThePlatformCommand> {
+public class RegisterNewFriendIntoThePlatformUseCase implements UseCase<Friend, RegisterNewFriendIntoThePlatformCommand> {
 
     private final FriendRepository friendRepository;
 
-    public RegisterANewFriendIntoThePlatformUseCase(final FriendRepository friendRepository) {
+    public RegisterNewFriendIntoThePlatformUseCase(final FriendRepository friendRepository) {
         this.friendRepository = Objects.requireNonNull(friendRepository);
     }
 
     @Override
-    public Friend execute(final RegisterANewFriendIntoThePlatformCommand command) {
+    public Friend execute(final RegisterNewFriendIntoThePlatformCommand command) {
         final Friend friend = new Friend(new FriendId(command.newPseudoId()));
         this.friendRepository.create(friend);
         return friend;

@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
-public class ANewFriendRegisteredIntoThePlatformEventTest extends EventTest {
+public class NewFriendRegisteredIntoThePlatformEventTest extends EventTest {
 
     @Test
     public void should_return_expected_event() {
@@ -22,14 +22,14 @@ public class ANewFriendRegisteredIntoThePlatformEventTest extends EventTest {
         doReturn(Instant.ofEpochSecond(1)).when(instantProvider).now();
 
         // When
-        final ANewFriendRegisteredIntoThePlatformEvent aNewFriendRegisteredIntoThePlatformEvent = ANewFriendRegisteredIntoThePlatformEvent
+        final NewFriendRegisteredIntoThePlatformEvent newFriendRegisteredIntoThePlatformEvent = NewFriendRegisteredIntoThePlatformEvent
                 .of(mario, objectMapper, instantProvider);
 
         // Then
-        assertThat(aNewFriendRegisteredIntoThePlatformEvent.getAggregateId()).isEqualTo("Mario");
-        assertThat(aNewFriendRegisteredIntoThePlatformEvent.getAggregateType()).isEqualTo("Friend");
-        assertThat(aNewFriendRegisteredIntoThePlatformEvent.getTimestamp()).isEqualTo(Instant.ofEpochSecond(1));
-        assertThat(aNewFriendRegisteredIntoThePlatformEvent.getType()).isEqualTo("ANewFriendRegisteredIntoThePlatform");
-        verifyJson(aNewFriendRegisteredIntoThePlatformEvent.getPayload().toString());
+        assertThat(newFriendRegisteredIntoThePlatformEvent.getAggregateId()).isEqualTo("Mario");
+        assertThat(newFriendRegisteredIntoThePlatformEvent.getAggregateType()).isEqualTo("Friend");
+        assertThat(newFriendRegisteredIntoThePlatformEvent.getTimestamp()).isEqualTo(Instant.ofEpochSecond(1));
+        assertThat(newFriendRegisteredIntoThePlatformEvent.getType()).isEqualTo("NewFriendRegisteredIntoThePlatform");
+        verifyJson(newFriendRegisteredIntoThePlatformEvent.getPayload().toString());
     }
 }

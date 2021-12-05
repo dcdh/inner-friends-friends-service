@@ -7,7 +7,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.UUID;
 
 public class Application {
@@ -66,8 +65,8 @@ public class Application {
 
     @Produces
     @ApplicationScoped
-    public RegisterANewFriendIntoThePlatformUseCase registerANewFriendIntoThePlatformUseCaseProducer(final FriendRepository friendRepository) {
-        return new RegisterANewFriendIntoThePlatformUseCase(friendRepository);
+    public RegisterNewFriendIntoThePlatformUseCase registerNewFriendIntoThePlatformUseCaseProducer(final FriendRepository friendRepository) {
+        return new RegisterNewFriendIntoThePlatformUseCase(friendRepository);
     }
 
     @Produces

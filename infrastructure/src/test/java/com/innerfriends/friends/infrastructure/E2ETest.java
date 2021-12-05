@@ -84,7 +84,7 @@ public class E2ETest {
         final List<ConsumerRecord<String, JsonObject>> friendsEvents = topicConsumer.drain(1);
         assertThat(friendsEvents.get(0).key()).matches("\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b");
         assertThat(friendsEvents.get(0).headers().lastHeader("id").value()).isEqualTo(friendsEvents.get(0).key().getBytes());
-        assertThat(friendsEvents.get(0).headers().lastHeader("eventType").value()).isEqualTo("ANewFriendRegisteredIntoThePlatform".getBytes());
+        assertThat(friendsEvents.get(0).headers().lastHeader("eventType").value()).isEqualTo("NewFriendRegisteredIntoThePlatform".getBytes());
         assertThat(friendsEvents.get(0).headers().lastHeader("aggregateId").value()).isEqualTo("DamDamDeo".getBytes());
 
         assertThat(arangoDBFriends.getFriend("DamDamDeo")).isEqualTo(expectedDamDamDeo);
@@ -109,7 +109,7 @@ public class E2ETest {
         final List<ConsumerRecord<String, JsonObject>> friendsEvents = topicConsumer.drain(1);
         assertThat(friendsEvents.get(0).key()).matches("\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b");
         assertThat(friendsEvents.get(0).headers().lastHeader("id").value()).isEqualTo(friendsEvents.get(0).key().getBytes());
-        assertThat(friendsEvents.get(0).headers().lastHeader("eventType").value()).isEqualTo("ANewFriendRegisteredIntoThePlatform".getBytes());
+        assertThat(friendsEvents.get(0).headers().lastHeader("eventType").value()).isEqualTo("NewFriendRegisteredIntoThePlatform".getBytes());
         assertThat(friendsEvents.get(0).headers().lastHeader("aggregateId").value()).isEqualTo("Mario".getBytes());
 
         assertThat(arangoDBFriends.getFriend("Mario")).isEqualTo(expectedMario);
@@ -134,7 +134,7 @@ public class E2ETest {
         final List<ConsumerRecord<String, JsonObject>> friendsEvents = topicConsumer.drain(1);
         assertThat(friendsEvents.get(0).key()).matches("\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b");
         assertThat(friendsEvents.get(0).headers().lastHeader("id").value()).isEqualTo(friendsEvents.get(0).key().getBytes());
-        assertThat(friendsEvents.get(0).headers().lastHeader("eventType").value()).isEqualTo("ANewFriendRegisteredIntoThePlatform".getBytes());
+        assertThat(friendsEvents.get(0).headers().lastHeader("eventType").value()).isEqualTo("NewFriendRegisteredIntoThePlatform".getBytes());
         assertThat(friendsEvents.get(0).headers().lastHeader("aggregateId").value()).isEqualTo("Peach".getBytes());
 
         assertThat(arangoDBFriends.getFriend("Peach")).isEqualTo(expectedPeach);
@@ -158,7 +158,7 @@ public class E2ETest {
         final List<ConsumerRecord<String, JsonObject>> friendsEvents = topicConsumer.drain(1);
         assertThat(friendsEvents.get(0).key()).matches("\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b");
         assertThat(friendsEvents.get(0).headers().lastHeader("id").value()).isEqualTo(friendsEvents.get(0).key().getBytes());
-        assertThat(friendsEvents.get(0).headers().lastHeader("eventType").value()).isEqualTo("ANewFriendRegisteredIntoThePlatform".getBytes());
+        assertThat(friendsEvents.get(0).headers().lastHeader("eventType").value()).isEqualTo("NewFriendRegisteredIntoThePlatform".getBytes());
         assertThat(friendsEvents.get(0).headers().lastHeader("aggregateId").value()).isEqualTo("Luigi".getBytes());
 
         assertThat(arangoDBFriends.getFriend("Luigi")).isEqualTo(expectedLuigi);

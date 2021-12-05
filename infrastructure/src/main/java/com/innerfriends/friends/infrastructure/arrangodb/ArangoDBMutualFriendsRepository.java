@@ -124,9 +124,9 @@ public class ArangoDBMutualFriendsRepository implements MutualFriendsRepository 
     }
 
     @NewSpan
-    public void registerANewFriendIntoThePlatform(final FriendId friendId,
-                                                  final List<InFriendshipWithId> inFriendshipsWithId,
-                                                  final Version version) {
+    public void registerNewFriendIntoThePlatform(final FriendId friendId,
+                                                 final List<InFriendshipWithId> inFriendshipsWithId,
+                                                 final Version version) {
         final StreamTransactionEntity tx = arangoDatabase.beginStreamTransaction(new StreamTransactionOptions()
                 .writeCollections(FRIENDS, IN_FRIENDSHIP_WITH));
         try {

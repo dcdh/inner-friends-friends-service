@@ -5,11 +5,11 @@ import com.innerfriends.friends.domain.UseCaseCommand;
 
 import java.util.Objects;
 
-public final class RegisterANewFriendIntoThePlatformCommand implements UseCaseCommand<NewPseudoId> {
+public final class RegisterNewFriendIntoThePlatformCommand implements UseCaseCommand<NewPseudoId> {
 
     private final NewPseudoId newPseudoId;
 
-    public RegisterANewFriendIntoThePlatformCommand(final NewPseudoId newPseudoId) {
+    public RegisterNewFriendIntoThePlatformCommand(final NewPseudoId newPseudoId) {
         this.newPseudoId = Objects.requireNonNull(newPseudoId);
     }
 
@@ -25,8 +25,8 @@ public final class RegisterANewFriendIntoThePlatformCommand implements UseCaseCo
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (!(o instanceof RegisterANewFriendIntoThePlatformCommand)) return false;
-        final RegisterANewFriendIntoThePlatformCommand that = (RegisterANewFriendIntoThePlatformCommand) o;
+        if (!(o instanceof RegisterNewFriendIntoThePlatformCommand)) return false;
+        final RegisterNewFriendIntoThePlatformCommand that = (RegisterNewFriendIntoThePlatformCommand) o;
         return Objects.equals(newPseudoId, that.newPseudoId);
     }
 

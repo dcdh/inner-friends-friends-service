@@ -7,11 +7,11 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class RegisterANewFriendIntoThePlatformCommandTest {
+public class RegisterNewFriendIntoThePlatformCommandTest {
 
     @Test
     public void should_verify_equality() {
-        EqualsVerifier.forClass(RegisterANewFriendIntoThePlatformCommand.class).verify();
+        EqualsVerifier.forClass(RegisterNewFriendIntoThePlatformCommand.class).verify();
     }
 
     @Test
@@ -20,7 +20,7 @@ public class RegisterANewFriendIntoThePlatformCommandTest {
         final NewPseudoId newPseudoId = mock(NewPseudoId.class);
 
         // When && Then
-        assertThat(new RegisterANewFriendIntoThePlatformCommand(newPseudoId).identifier()).isEqualTo(newPseudoId);
+        assertThat(new RegisterNewFriendIntoThePlatformCommand(newPseudoId).identifier()).isEqualTo(newPseudoId);
     }
 
 }

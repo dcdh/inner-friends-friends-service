@@ -56,14 +56,14 @@ public class FriendsGraphProjectionHandler {
             LOG.info("Event with UUID {} was already processed, ignoring it", eventId);
             return;
         }
-        if (ANewFriendRegisteredIntoThePlatformEvent.TYPE.equals(eventType)) {
+        if (NewFriendRegisteredIntoThePlatformEvent.TYPE.equals(eventType)) {
             final FriendId friendId = new FriendId(eventPayload.getString(FRIEND_ID));
             final List<InFriendshipWithId> inFriendshipsWith = IntStream.range(0, eventPayload.getJsonArray(IN_FRIENDSHIPS_WITH).size())
                     .mapToObj(index -> eventPayload.getJsonArray(IN_FRIENDSHIPS_WITH).getString(index))
                     .map(InFriendshipWithId::new)
                     .collect(Collectors.toList());
             final Version version = new Version(eventPayload.getLong(VERSION));
-            arangoDBMutualFriendsRepository.registerANewFriendIntoThePlatform(friendId, inFriendshipsWith, version);
+            arangoDBMutualFriendsRepository.registerNewFriendIntoThePlatform(friendId, inFriendshipsWith, version);
         } else if (BioWrittenEvent.TYPE.equals(eventType)) {
             final FriendId friendId = new FriendId(eventPayload.getString(FRIEND_ID));
             final Bio bio = new Bio(eventPayload.getString(BIO));

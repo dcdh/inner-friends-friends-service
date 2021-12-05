@@ -6,7 +6,7 @@ import com.innerfriends.friends.domain.FriendId;
 import com.innerfriends.friends.domain.FriendUnknownException;
 import com.innerfriends.friends.domain.UseCase;
 import com.innerfriends.friends.infrastructure.InstantProvider;
-import com.innerfriends.friends.infrastructure.outbox.ANewFriendRegisteredIntoThePlatformEvent;
+import com.innerfriends.friends.infrastructure.outbox.NewFriendRegisteredIntoThePlatformEvent;
 import com.innerfriends.friends.infrastructure.postgres.PostgresFriendRepository;
 import io.debezium.outbox.quarkus.ExportedEvent;
 
@@ -40,7 +40,7 @@ public class RegisterDamDamDeoUseCase implements UseCase<Void, RegisterDamDamDeo
             postgresFriendRepository.getBy(new FriendId(Friend.DAM_DAM_DEO.pseudoId()));
         } catch (final FriendUnknownException friendUnknownException) {
             final Friend damDamDeoFriendToCreate = new Friend(new FriendId(Friend.DAM_DAM_DEO.pseudoId()));
-            event.fire(ANewFriendRegisteredIntoThePlatformEvent.of(damDamDeoFriendToCreate, objectMapper, instantProvider));
+            event.fire(NewFriendRegisteredIntoThePlatformEvent.of(damDamDeoFriendToCreate, objectMapper, instantProvider));
             postgresFriendRepository.create(damDamDeoFriendToCreate);
         }
         return null;

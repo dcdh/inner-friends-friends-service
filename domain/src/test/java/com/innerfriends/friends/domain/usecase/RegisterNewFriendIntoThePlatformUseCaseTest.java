@@ -11,19 +11,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class RegisterANewFriendIntoThePlatformUseCaseTest {
+public class RegisterNewFriendIntoThePlatformUseCaseTest {
 
     @Test
     public void should_register_a_new_friend_into_the_platform() {
         // Given
         final FriendRepository friendRepository = mock(FriendRepository.class);
-        final RegisterANewFriendIntoThePlatformUseCase registerANewFriendIntoThePlatformUseCase
-                = new RegisterANewFriendIntoThePlatformUseCase(friendRepository);
-        final RegisterANewFriendIntoThePlatformCommand registerANewFriendIntoThePlatformCommand = new RegisterANewFriendIntoThePlatformCommand(
+        final RegisterNewFriendIntoThePlatformUseCase registerNewFriendIntoThePlatformUseCase
+                = new RegisterNewFriendIntoThePlatformUseCase(friendRepository);
+        final RegisterNewFriendIntoThePlatformCommand registerNewFriendIntoThePlatformCommand = new RegisterNewFriendIntoThePlatformCommand(
                 new NewPseudoId("Mario"));
 
         // When
-        final Friend newFriendRegistered = registerANewFriendIntoThePlatformUseCase.execute(registerANewFriendIntoThePlatformCommand);
+        final Friend newFriendRegistered = registerNewFriendIntoThePlatformUseCase.execute(registerNewFriendIntoThePlatformCommand);
 
         // Then
         final Friend expectedFriend = new Friend(new FriendId("Mario"), List.of(new InFriendshipWithId("DamDamDeo")), new Bio(), new Version(0l));

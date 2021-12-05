@@ -101,7 +101,7 @@ public class ArangoDBMutualFriendsRepositoryTest {
         // Given
 
         // When
-        arangoDBMutualFriendsRepository.registerANewFriendIntoThePlatform(new FriendId("Mario"),
+        arangoDBMutualFriendsRepository.registerNewFriendIntoThePlatform(new FriendId("Mario"),
                 List.of(new InFriendshipWithId("DamDamDeo")),
                 new Version(0l));
 
