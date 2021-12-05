@@ -1,4 +1,4 @@
-package com.innerfriends.friends.infrastructure.bus.consumer.saga;
+package com.innerfriends.friends.infrastructure.bus.consumer.friends.saga;
 
 import com.innerfriends.friends.infrastructure.postgres.KafkaEventConsumer;
 import io.smallrye.reactive.messaging.kafka.IncomingKafkaRecord;

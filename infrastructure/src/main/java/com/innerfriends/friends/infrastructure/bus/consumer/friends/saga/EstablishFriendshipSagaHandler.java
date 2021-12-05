@@ -1,9 +1,8 @@
-package com.innerfriends.friends.infrastructure.bus.consumer.saga;
+package com.innerfriends.friends.infrastructure.bus.consumer.friends.saga;
 
 import com.innerfriends.friends.domain.FromFriendId;
 import com.innerfriends.friends.domain.ToFriendId;
 import com.innerfriends.friends.domain.usecase.EstablishAFriendshipFromFriendWithToFriendCommand;
-import com.innerfriends.friends.domain.usecase.EstablishAFriendshipFromFriendWithToFriendUseCase;
 import com.innerfriends.friends.infrastructure.InstantProvider;
 import com.innerfriends.friends.infrastructure.opentelemetry.NewSpan;
 import com.innerfriends.friends.infrastructure.outbox.ToFriendEstablishedAFriendshipWithFromFriendEvent;
