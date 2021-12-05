@@ -1,6 +1,6 @@
 package com.innerfriends.friends.infrastructure.bus.consumer.friends.projection.mutualfriends;
 
-import com.innerfriends.friends.infrastructure.postgres.KafkaEventConsumer;
+import com.innerfriends.friends.infrastructure.bus.consumer.KafkaEventConsumer;
 import io.smallrye.reactive.messaging.kafka.IncomingKafkaRecord;
 import io.vertx.core.json.JsonObject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;

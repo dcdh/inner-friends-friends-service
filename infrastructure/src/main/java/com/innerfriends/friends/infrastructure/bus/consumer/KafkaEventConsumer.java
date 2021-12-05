@@ -1,4 +1,4 @@
-package com.innerfriends.friends.infrastructure.postgres;
+package com.innerfriends.friends.infrastructure.bus.consumer;
 
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 import org.apache.kafka.common.header.Header;
