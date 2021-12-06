@@ -79,6 +79,7 @@ public class RedpandaTestResourceLifecycleManager implements QuarkusTestResource
         redpandaContainer.followOutput(logConsumer);
         debeziumConnectContainer = new GenericContainer<>("debezium/connect:1.8")
                 .withNetwork(network)
+                .withNetworkAliases("connect")
                 .withExposedPorts(8083)
                 .withEnv("KAFKA_LOG4J_OPTS", "-Dlog4j.configuration=file:/opt/kafka/config/connect-log4j.properties")
                 .withEnv("BOOTSTRAP_SERVERS", "redpanda:9092")
