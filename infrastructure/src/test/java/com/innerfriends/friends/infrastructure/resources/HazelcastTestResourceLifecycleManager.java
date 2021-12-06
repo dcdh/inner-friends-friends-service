@@ -33,9 +33,5 @@ public class HazelcastTestResourceLifecycleManager implements QuarkusTestResourc
     }
 
     @Override
-    public void stop() {
-        if (hazelcastContainer != null) {
-            hazelcastContainer.close();
-        }
-    }
+    public void stop() {}
 }

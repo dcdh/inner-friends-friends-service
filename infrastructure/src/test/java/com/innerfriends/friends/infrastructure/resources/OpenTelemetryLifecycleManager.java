@@ -49,12 +49,5 @@ public class OpenTelemetryLifecycleManager implements QuarkusTestResourceLifecyc
     }
 
     @Override
-    public void stop() {
-        if (jaegerTracingAllInOneContainer != null) {
-            jaegerTracingAllInOneContainer.close();
-        }
-        if (otelOpentelemetryCollectorContainer != null) {
-            otelOpentelemetryCollectorContainer.close();
-        }
-    }
+    public void stop() {}
 }

@@ -37,10 +37,6 @@ public class ArangoDBTestResourceLifecycleManager implements QuarkusTestResource
     }
 
     @Override
-    public void stop() {
-        if (arangodbContainer != null) {
-            arangodbContainer.close();
-        }
-    }
+    public void stop() {}
 
 }

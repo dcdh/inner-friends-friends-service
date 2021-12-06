@@ -184,25 +184,6 @@ public class RedpandaTestResourceLifecycleManager implements QuarkusTestResource
     }
 
     @Override
-    public void stop() {
-        if (postgresMutableContainer != null) {
-            postgresMutableContainer.close();
-        }
-        if (postgresKeycloakContainer != null) {
-            postgresKeycloakContainer.close();
-        }
-        if (keycloakContainer != null) {
-            keycloakContainer.close();
-        }
-        if (redpandaContainer != null) {
-            redpandaContainer.close();
-        }
-        if (debeziumConnectContainer != null) {
-            debeziumConnectContainer.close();
-        }
-        if (network != null) {
-            network.close();
-        }
-    }
+    public void stop() {}
 
 }
