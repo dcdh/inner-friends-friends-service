@@ -98,7 +98,7 @@ public class E2ETest {
 
         // When
         keycloakAdminClient.register("Mario");
-        waitForFriendToBeRegistered("Mario");
+        waitForFriendToBeRegistered(new FriendId("Mario"));
 
         // Then
         final Friend expectedMario = new Friend(new FriendId("Mario"));
@@ -123,7 +123,7 @@ public class E2ETest {
 
         // When
         keycloakAdminClient.register("Peach");
-        waitForFriendToBeRegistered("Peach");
+        waitForFriendToBeRegistered(new FriendId("Peach"));
 
         // Then
         final Friend expectedPeach = new Friend(new FriendId("Peach"));
@@ -147,7 +147,7 @@ public class E2ETest {
 
         // When
         keycloakAdminClient.register("Luigi");
-        waitForFriendToBeRegistered("Luigi");
+        waitForFriendToBeRegistered(new FriendId("Luigi"));
 
         // Then
         final Friend expectedLuigi = new Friend(new FriendId("Luigi"));
@@ -404,11 +404,11 @@ public class E2ETest {
         assertThat(traces.getOperationNamesInError()).isEmpty();
     }
 
-    private void waitForFriendToBeRegistered(final String friendId) {
+    private void waitForFriendToBeRegistered(final FriendId friendId) {
         Awaitility.await()
                 .atMost(Durations.TEN_SECONDS)
                 .pollInterval(Durations.ONE_HUNDRED_MILLISECONDS).until(() ->
-                    runInTransaction(() -> entityManager.find(FriendEntity.class, friendId)) != null);
+                    runInTransaction(() -> entityManager.find(FriendEntity.class, friendId.pseudo())) != null);
     }
 
     // TODO DonkeyKong, Pauline !!!
