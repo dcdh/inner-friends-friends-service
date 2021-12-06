@@ -153,7 +153,7 @@ public class QuarkusTestResourcesLifecycleManager implements QuarkusTestResource
             put("arangodb.host", "localhost");
             put("arangodb.port", ARANGO_DB_CONTAINER.getMappedPort(8529).toString());
             put("arangodb.user", "root");
-            put("arangodb.password", "password");
+            put("arangodb.password", ARANGO_DB_CONTAINER.getEnvMap().get("ARANGO_ROOT_PASSWORD"));
             put("arangodb.dbName", "friends");
             // hazelcast
             put("quarkus.hazelcast-client.cluster-name", "dev");
@@ -165,7 +165,7 @@ public class QuarkusTestResourcesLifecycleManager implements QuarkusTestResource
             // connector
             put("kafka-connector-api/mp-rest/url",
                     String.format("http://%s:%d", "localhost", DEBEZIUM_CONNECT_CONTAINER.getMappedPort(8083)));
-            put("connector.mutable.database.hostname", "mutable");
+            put("connector.mutable.database.hostname", POSTGRES_MUTABLE_CONTAINER.getDatabaseName());
             put("connector.mutable.database.username", POSTGRES_MUTABLE_CONTAINER.getUsername());
             put("connector.mutable.database.password", POSTGRES_MUTABLE_CONTAINER.getPassword());
             put("connector.mutable.database.port", "5432");
