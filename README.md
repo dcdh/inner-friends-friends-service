@@ -30,7 +30,9 @@ Friend domain.
 
 #### Known issues
 
-Native compilation does not work since version `2.4.0.Final`. Stuck to version `2.3.1.Final`.
+1. It is not possible to access the red panda in the dev mode by the quarkus instance.
+TODO setup `advertise-kafka-addr` to use the container IP and not localhost or docker container network name like it is done in `RedPandaKafkaContainer`.
+1. Native compilation does not work since version `2.4.0.Final`. Stuck to version `2.3.1.Final`.
 
 ###  Kafka
 
