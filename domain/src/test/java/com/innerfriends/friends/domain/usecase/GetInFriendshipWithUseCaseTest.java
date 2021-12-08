@@ -38,7 +38,7 @@ public class GetInFriendshipWithUseCaseTest {
     }
 
     @Test
-    public void should_fail_fast_when_friendship_not_established() {
+    public void should_fail_when_friendship_not_established() {
         // Given
         final Friend friend = new Friend(new FriendId("Mario"));
         doReturn(friend).when(friendRepository).getBy(new FriendId("Mario"));
@@ -47,8 +47,7 @@ public class GetInFriendshipWithUseCaseTest {
 
         // When && Then
         assertThatThrownBy(() -> getInFriendshipWithUseCase.execute(getInFriendshipWithCommand))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Not in friendship with");
+                .isInstanceOf(NotInFriendshipWithException.class);
     }
 
 }

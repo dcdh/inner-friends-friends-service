@@ -16,7 +16,7 @@ public class GetInFriendshipWithUseCase implements UseCase<InFriendshipWith, Get
     public InFriendshipWith execute(final GetInFriendshipWithCommand command) {
         final Friend friend = friendRepository.getBy(command.friendId());
         if (!friend.isInFriendshipWith(command.inFriendshipWithId())) {
-            throw new IllegalStateException("Not in friendship with");
+            throw new NotInFriendshipWithException();
         }
         return new InFriendshipWith(friendRepository.getBy(new FriendId(command.inFriendshipWithId())));
     }

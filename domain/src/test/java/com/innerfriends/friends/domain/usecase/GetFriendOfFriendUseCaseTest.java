@@ -67,7 +67,7 @@ public class GetFriendOfFriendUseCaseTest {
     }
 
     @Test
-    public void should_fail_fast_when_not_in_friendship_with() {
+    public void should_fail_when_not_in_friendship_with() {
         // Given
         doReturn(new Friend(new FriendId("Mario"), List.of(), new Bio(), new Version(1l)))
                 .when(friendRepository).getBy(new FriendId("Mario"));
@@ -78,12 +78,11 @@ public class GetFriendOfFriendUseCaseTest {
 
         // When && Then
         assertThatThrownBy(() -> getFriendOfFriendUseCase.execute(getFriendOfFriendCommand))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Not in friendship with");
+                .isInstanceOf(NotInFriendshipWithException.class);
     }
 
     @Test
-    public void should_fail_fast_when_not_a_friend_of_friend() {
+    public void should_fail_when_not_a_friend_of_friend() {
         // Given
         doReturn(new Friend(new FriendId("Mario"), List.of(new InFriendshipWithId("Donkey Kong")), new Bio(), new Version(1l)))
                 .when(friendRepository).getBy(new FriendId("Mario"));
@@ -96,8 +95,7 @@ public class GetFriendOfFriendUseCaseTest {
 
         // When && Then
         assertThatThrownBy(() -> getFriendOfFriendUseCase.execute(getFriendOfFriendCommand))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Not a friend of friend");
+                .isInstanceOf(NotAFriendOfFriendException.class);
     }
 
 }

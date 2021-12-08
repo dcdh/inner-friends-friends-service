@@ -233,6 +233,24 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    public void should_get_in_friendship_with_fail_when_not_in_friendship() {
+        // Given
+        doThrow(new NotInFriendshipWithException())
+                .when(managedGetInFriendshipWithUseCase)
+                .execute(new GetInFriendshipWithCommand(
+                        new FriendId("Mario"), new InFriendshipWithId("DonkeyKong")));
+
+        // When && Then
+        given()
+                .when()
+                .get("/friends/Mario/inFriendshipsWith/DonkeyKong")
+                .then()
+                .log().all()
+                .statusCode(400)
+                .body(equalTo("Not in friendship with"));
+    }
+
+    @Test
     public void should_get_in_friendship_with_mutual_friends() {
         // Given
         doReturn(new InFriendshipWithMutualFriends(
@@ -270,6 +288,42 @@ public class FriendsEndpointTest {
                 .statusCode(200)
                 .extract().response().body().prettyPrint();
         verifyJson(jsonResponse);
+    }
+
+    @Test
+    public void should_get_friends_of_friend_when_not_in_friendship_with() {
+        // Given
+        doThrow(new NotInFriendshipWithException())
+                .when(managedGetFriendOfFriendUseCase)
+                .execute(new GetFriendOfFriendCommand(
+                        new FriendId("Mario"), new InFriendshipWithId("DonkeyKong"), new FriendOfFriendId("Pauline")));
+
+        // When && Then
+        given()
+                .when()
+                .get("/friends/Mario/inFriendshipsWith/DonkeyKong/friendsOfFriend/Pauline")
+                .then()
+                .log().all()
+                .statusCode(400)
+                .body(equalTo("Not in friendship with"));
+    }
+
+    @Test
+    public void should_get_friends_of_friend_when_not_a_friend_of_friend() {
+        // Given
+        doThrow(new NotAFriendOfFriendException())
+                .when(managedGetFriendOfFriendUseCase)
+                .execute(new GetFriendOfFriendCommand(
+                        new FriendId("Mario"), new InFriendshipWithId("DonkeyKong"), new FriendOfFriendId("Pauline")));
+
+        // When && Then
+        given()
+                .when()
+                .get("/friends/Mario/inFriendshipsWith/DonkeyKong/friendsOfFriend/Pauline")
+                .then()
+                .log().all()
+                .statusCode(400)
+                .body(equalTo("Not a friend of friend"));
     }
 
     @Test

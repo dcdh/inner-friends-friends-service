@@ -16,11 +16,11 @@ public class GetFriendOfFriendUseCase implements UseCase<FriendOfFriend, GetFrie
     public FriendOfFriend execute(final GetFriendOfFriendCommand command) {
         final Friend friend = friendRepository.getBy(command.friendId());
         if (!friend.isInFriendshipWith(command.inFriendshipWithId())) {
-            throw new IllegalStateException("Not in friendship with");
+            throw new NotInFriendshipWithException();
         }
         final Friend friendship = friendRepository.getBy(new FriendId(command.inFriendshipWithId()));
         if (!friendship.isInFriendshipWith(new InFriendshipWithId(command.friendOfFriendId()))) {
-            throw new IllegalStateException("Not a friend of friend");
+            throw new NotAFriendOfFriendException();
         }
         final Friend friendOfFriend = friendRepository.getBy(new FriendId(command.friendOfFriendId()));
         return new FriendOfFriend(
