@@ -57,7 +57,7 @@ public class E2ETest {
     ArangoDBFriends arangoDBFriends;
 
     @Inject
-    KeycloakAdminClient keycloakAdminClient;
+    KeycloakClient keycloakClient;
 
     @BeforeEach
     public void setup() {
@@ -97,7 +97,7 @@ public class E2ETest {
         // Given
 
         // When
-        keycloakAdminClient.register("Mario");
+        keycloakClient.registerUserIntoPublicRealm("Mario");
         waitForFriendToBeRegistered(new FriendId("Mario"));
 
         // Then
@@ -122,7 +122,7 @@ public class E2ETest {
         // Given
 
         // When
-        keycloakAdminClient.register("Peach");
+        keycloakClient.registerUserIntoPublicRealm("Peach");
         waitForFriendToBeRegistered(new FriendId("Peach"));
 
         // Then
@@ -146,7 +146,7 @@ public class E2ETest {
         // Given
 
         // When
-        keycloakAdminClient.register("Luigi");
+        keycloakClient.registerUserIntoPublicRealm("Luigi");
         waitForFriendToBeRegistered(new FriendId("Luigi"));
 
         // Then

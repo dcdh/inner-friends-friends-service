@@ -3,13 +3,17 @@ package com.innerfriends.friends.infrastructure.interfaces;
 import com.innerfriends.friends.domain.*;
 import com.innerfriends.friends.domain.usecase.*;
 import com.innerfriends.friends.infrastructure.usecase.*;
+import io.quarkus.security.Authenticated;
 
+import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.Objects;
 import java.util.UUID;
 
-@Path("/")
+@Path("/friends")
+@Authenticated
+@RequestScoped
 public class FriendsEndpoint {
 
     private final ManagedGetFriendUseCase managedGetFriendUseCase;
@@ -40,20 +44,20 @@ public class FriendsEndpoint {
     }
 
     @GET
-    @Path("/friends/{friendId}")
+    @Path("/{friendId}")
     public FriendDTO getFriend(@PathParam("friendId") final String friendId) {
         return new FriendDTO(managedGetFriendUseCase.execute(new GetFriendCommand(new FriendId(friendId))));
     }
 
     @POST
-    @Path("/friends/{fromFriendId}/generateInvitationCode")
+    @Path("/{fromFriendId}/generateInvitationCode")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public InvitationCodeDTO generateInvitationCode(@PathParam("fromFriendId") final String fromFriendId) {
         return new InvitationCodeDTO(managedGenerateInvitationCodeUseCase.execute(new GenerateInvitationCodeCommand(new FromFriendId(fromFriendId))).invitationCode());
     }
 
     @POST
-    @Path("/friends/{friendId}/writeBio")
+    @Path("/{friendId}/writeBio")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public FriendDTO writeBio(@PathParam("friendId") final String friendId,
                               @FormParam("bio") final String bio,
@@ -62,7 +66,7 @@ public class FriendsEndpoint {
     }
 
     @POST
-    @Path("/friends/{toFriendId}/establishAFriendship")
+    @Path("/{toFriendId}/establishAFriendship")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public FriendDTO establishAFriendship(@PathParam("toFriendId") final String toFriendId,
                                           @FormParam("invitationCode") final String invitationCode,
@@ -72,7 +76,7 @@ public class FriendsEndpoint {
     }
 
     @GET
-    @Path("/friends/{friendId}/inFriendshipsWith/{inFriendshipWithId}")
+    @Path("/{friendId}/inFriendshipsWith/{inFriendshipWithId}")
     public InFriendshipWithDTO getInFriendshipsWith(@PathParam("friendId") final String friendId,
                                                     @PathParam("inFriendshipWithId") final String inFriendshipWithId) {
         return new InFriendshipWithDTO(managedGetInFriendshipWithUseCase.execute(new GetInFriendshipWithCommand(
@@ -80,7 +84,7 @@ public class FriendsEndpoint {
     }
 
     @GET
-    @Path("/friends/{friendId}/inFriendshipsWith/{inFriendshipWithId}/mutualFriends")
+    @Path("/{friendId}/inFriendshipsWith/{inFriendshipWithId}/mutualFriends")
     public InFriendshipWithMutualFriendsDTO getInFriendshipsWithMutualFriends(@PathParam("friendId") final String friendId,
                                                                               @PathParam("inFriendshipWithId") final String inFriendshipWithId) {
         return new InFriendshipWithMutualFriendsDTO(managedGetInFriendshipWithMutualFriendsUseCase.execute(
@@ -88,7 +92,7 @@ public class FriendsEndpoint {
     }
 
     @GET
-    @Path("/friends/{friendId}/inFriendshipsWith/{inFriendshipWithId}/friendsOfFriend/{friendOfFriendId}")
+    @Path("/{friendId}/inFriendshipsWith/{inFriendshipWithId}/friendsOfFriend/{friendOfFriendId}")
     public FriendOfFriendDTO getFriendOfFriend(@PathParam("friendId") final String friendId,
                                                @PathParam("inFriendshipWithId") final String inFriendshipWithId,
                                                @PathParam("friendOfFriendId") final String friendOfFriendId) {
@@ -97,7 +101,7 @@ public class FriendsEndpoint {
     }
 
     @GET
-    @Path("/friends/{friendId}/inFriendshipsWith/{inFriendshipWithId}/friendsOfFriend/{friendOfFriendId}/mutualFriends")
+    @Path("/{friendId}/inFriendshipsWith/{inFriendshipWithId}/friendsOfFriend/{friendOfFriendId}/mutualFriends")
     public FriendsOfFriendMutualFriendsDTO getFriendOfFriendMutualFriends(@PathParam("friendId") final String friendId,
                                                                           @PathParam("inFriendshipWithId") final String inFriendshipWithId,
                                                                           @PathParam("friendOfFriendId") final String friendOfFriendId) {

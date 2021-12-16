@@ -203,10 +203,13 @@ public class QuarkusTestResourcesLifecycleManager implements QuarkusTestResource
             put("mp.messaging.incoming.keycloak-user-attribute.auto.offset.reset", "earliest");
             // keycloak
             put("quarkus.oidc.auth-server-url", String.format("http://localhost:%d/auth/realms/public", KEYCLOAK_CONTAINER.getMappedPort(8080)));
-            put("keycloak.admin.adminRealm", "master");
+            put("quarkus.oidc.client-id", "public");
+            put("quarkus.oidc.credentials.secret", "4d8d4bc6-1eda-433b-ab6b-967a3a4bdd95");
+            put("keycloak.admin.realm", "master");
             put("keycloak.admin.clientId", "admin-cli");
             put("keycloak.admin.username", KEYCLOAK_CONTAINER.getEnvMap().get("KEYCLOAK_USER"));
             put("keycloak.admin.password", KEYCLOAK_CONTAINER.getEnvMap().get("KEYCLOAK_PASSWORD"));
+            put("keycloak-remote-service/mp-rest/url", String.format("http://localhost:%d/", KEYCLOAK_CONTAINER.getMappedPort(8080)));
             // jaeger
             put("jaeger.exposed.port.16686", JAEGER_TRACING_ALL_IN_ONE_CONTAINER.getMappedPort(16686).toString());
             // opentelemtry
