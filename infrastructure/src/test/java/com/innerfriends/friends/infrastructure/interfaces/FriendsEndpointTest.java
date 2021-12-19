@@ -5,6 +5,9 @@ import com.innerfriends.friends.domain.usecase.*;
 import com.innerfriends.friends.infrastructure.usecase.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.jwt.Claim;
+import io.quarkus.test.security.jwt.JwtSecurity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -48,6 +51,10 @@ public class FriendsEndpointTest {
     private ManagedGetFriendsOfFriendMutualFriendsUseCase managedGetFriendsOfFriendMutualFriendsUseCase;
 
     @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Mario")
+    })
     public void should_get_friend() {
         // Given
         doReturn(new Friend(new FriendId("Mario")))
@@ -66,6 +73,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Mario")
+    })
     public void should_get_friend_fail_when_friend_is_unknown() {
         // Given
         doThrow(new FriendUnknownException(new FriendId("Mario")))
@@ -82,6 +93,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Mario")
+    })
     public void should_generate_invitation_code() {
         // Given
         doReturn(new InvitationCodeGenerated(
@@ -94,7 +109,7 @@ public class FriendsEndpointTest {
         // When && Then
         final String jsonResponse = given()
                 .when()
-                .post("/friends/Mario/generateInvitationCode")
+                .post("/friends/generateInvitationCode")
                 .then()
                 .log().all()
                 .statusCode(200)
@@ -103,6 +118,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Mario")
+    })
     public void should_write_bio() {
         // Given
         doReturn(new Friend(new FriendId("Mario")).writeBio(new Bio("super plumber"), new ExecutedBy("Mario")))
@@ -112,9 +131,8 @@ public class FriendsEndpointTest {
         // When && Then
         final String jsonResponse = given()
                 .param("bio", "super plumber")
-                .param("executedBy", "Mario")
                 .when()
-                .post("/friends/Mario/writeBio")
+                .post("/friends/writeBio")
                 .then()
                 .log().all()
                 .statusCode(200)
@@ -123,6 +141,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "peach", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Peach")
+    })
     public void should_establish_a_friendship_to_friend_with_from_friend() {
         // Given
         doReturn(new Friend(new FriendId("Mario")).establishAFriendship(new FriendId("Peach")))
@@ -135,9 +157,8 @@ public class FriendsEndpointTest {
         // When && Then
         final String jsonResponse = given()
                 .param("invitationCode", "00000000-0000-0000-0000-000000000000")
-                .param("executedBy", "Peach")
                 .when()
-                .post("/friends/Peach/establishAFriendship")
+                .post("/friends/establishAFriendship")
                 .then()
                 .log().all()
                 .statusCode(200)
@@ -146,6 +167,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "peach", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Peach")
+    })
     public void should_establish_a_friendship_to_friend_with_from_friend_fail_when_already_a_friend() {
         // Given
         doThrow(new AlreadyAFriendException())
@@ -158,9 +183,8 @@ public class FriendsEndpointTest {
         // When && Then
         given()
                 .param("invitationCode", "00000000-0000-0000-0000-000000000000")
-                .param("executedBy", "Peach")
                 .when()
-                .post("/friends/Peach/establishAFriendship")
+                .post("/friends/establishAFriendship")
                 .then()
                 .log().all()
                 .statusCode(400)
@@ -168,6 +192,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "peach", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Peach")
+    })
     public void should_establish_a_friendship_to_friend_with_from_friend_fail_when_invitation_code_does_not_exists() {
         // Given
         doThrow(new UnknownInvitationCodeException())
@@ -180,9 +208,8 @@ public class FriendsEndpointTest {
         // When && Then
         given()
                 .param("invitationCode", "00000000-0000-0000-0000-000000000000")
-                .param("executedBy", "Peach")
                 .when()
-                .post("/friends/Peach/establishAFriendship")
+                .post("/friends/establishAFriendship")
                 .then()
                 .log().all()
                 .statusCode(404)
@@ -190,6 +217,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "peach", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Peach")
+    })
     public void should_establish_a_friendship_to_friend_with_from_friend_fail_when_invitation_code_is_invalide() {
         // Given
         doThrow(new InvitationCodeInvalideException())
@@ -204,7 +235,7 @@ public class FriendsEndpointTest {
                 .param("invitationCode", "00000000-0000-0000-0000-000000000000")
                 .param("executedBy", "Peach")
                 .when()
-                .post("/friends/Peach/establishAFriendship")
+                .post("/friends/establishAFriendship")
                 .then()
                 .log().all()
                 .statusCode(400)
@@ -212,6 +243,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Mario")
+    })
     public void should_get_in_friendship_with() {
         // Given
         doReturn(new InFriendshipWith(
@@ -233,6 +268,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Mario")
+    })
     public void should_get_in_friendship_with_fail_when_not_in_friendship() {
         // Given
         doThrow(new NotInFriendshipWithException())
@@ -251,6 +290,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Mario")
+    })
     public void should_get_in_friendship_with_mutual_friends() {
         // Given
         doReturn(new InFriendshipWithMutualFriends(
@@ -272,6 +315,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Mario")
+    })
     public void should_get_friends_of_friend() {
         // Given
         doReturn(new FriendOfFriend(new FriendOfFriendId("Pauline"), new Bio(""), new Version(1l), true))
@@ -291,6 +338,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Mario")
+    })
     public void should_get_friends_of_friend_when_not_in_friendship_with() {
         // Given
         doThrow(new NotInFriendshipWithException())
@@ -309,6 +360,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Mario")
+    })
     public void should_get_friends_of_friend_when_not_a_friend_of_friend() {
         // Given
         doThrow(new NotAFriendOfFriendException())
@@ -327,6 +382,10 @@ public class FriendsEndpointTest {
     }
 
     @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "friendId", value = "Mario")
+    })
     public void should_get_friends_of_friend_mutual_friends() {
         // Given
         doReturn(new FriendsOfFriendMutualFriends(

@@ -60,8 +60,8 @@ public class KeycloakClient {
         }
     }
 
-    public RemoteKeycloakService.AccessTokenResponse grantTokenFromPublicRealm(final String username, final String password) {
-        return remoteKeycloakService.grantTokenFromConfidentialAccessType(userRealm, PASSWORD_GRANT_TYPE, clientId, clientSecret, username, password);
+    public RemoteKeycloakService.AccessTokenResponse grantTokenFromPublicRealm(final String username) {
+        return remoteKeycloakService.grantTokenFromConfidentialAccessType(userRealm, PASSWORD_GRANT_TYPE, clientId, clientSecret, username, "password");
     }
 
 }

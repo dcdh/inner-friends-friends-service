@@ -32,6 +32,7 @@ import static org.hamcrest.Matchers.equalTo;
 @QuarkusTest
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class E2ETest {
 
     @Inject
@@ -58,6 +59,12 @@ public class E2ETest {
 
     @Inject
     KeycloakClient keycloakClient;
+
+    private String marioAccessToken;
+
+    private String peachAccessToken;
+
+    private String luigiAccessToken;
 
     @BeforeEach
     public void setup() {
@@ -99,6 +106,7 @@ public class E2ETest {
         // When
         keycloakClient.registerUserIntoPublicRealm("Mario");
         waitForFriendToBeRegistered(new FriendId("Mario"));
+        marioAccessToken = keycloakClient.grantTokenFromPublicRealm("Mario").accessToken;
 
         // Then
         final Friend expectedMario = new Friend(new FriendId("Mario"));
@@ -124,6 +132,7 @@ public class E2ETest {
         // When
         keycloakClient.registerUserIntoPublicRealm("Peach");
         waitForFriendToBeRegistered(new FriendId("Peach"));
+        peachAccessToken = keycloakClient.grantTokenFromPublicRealm("Peach").accessToken;
 
         // Then
         final Friend expectedPeach = new Friend(new FriendId("Peach"));
@@ -148,6 +157,7 @@ public class E2ETest {
         // When
         keycloakClient.registerUserIntoPublicRealm("Luigi");
         waitForFriendToBeRegistered(new FriendId("Luigi"));
+        luigiAccessToken = keycloakClient.grantTokenFromPublicRealm("Luigi").accessToken;
 
         // Then
         final Friend expectedLuigi = new Friend(new FriendId("Luigi"));
@@ -172,8 +182,9 @@ public class E2ETest {
         // When
         final UUID invitationCode = UUID.fromString(
                 given()
+                        .auth().oauth2(marioAccessToken)
                         .when()
-                        .post("/friends/Mario/generateInvitationCode")
+                        .post("/friends/generateInvitationCode")
                         .then()
                         .log().all()
                         .statusCode(200)
@@ -190,9 +201,9 @@ public class E2ETest {
         assertThat(friendsEvents.get(0).headers().lastHeader("eventType").value()).isEqualTo("InvitationCodeGenerated".getBytes());
         assertThat(friendsEvents.get(0).headers().lastHeader("aggregateId").value()).isEqualTo("Mario".getBytes());
 
-        final TracesUtils.Traces traces = tracesUtils.getTraces("/friends/Mario/generateInvitationCode");
+        final TracesUtils.Traces traces = tracesUtils.getTraces("/friends/generateInvitationCode");
         assertThat(traces.getOperationNames()).containsExactlyInAnyOrder(
-                "friends/{fromFriendId}/generateInvitationCode",
+                "friends/generateInvitationCode",
                 "PostgresInvitationCodeGeneratedRepository:store");
         assertThat(traces.getHttpStatus()).containsExactlyInAnyOrder(200);
         assertThat(traces.getOperationNamesInError()).isEmpty();
@@ -209,10 +220,10 @@ public class E2ETest {
 
         // When
         given()
+                .auth().oauth2(peachAccessToken)
                 .param("invitationCode", invitationCodeGeneratedEntity.invitationCode.toString())
-                .param("executedBy", "Peach")
                 .when()
-                .post("/friends/Peach/establishAFriendship")
+                .post("/friends/establishAFriendship")
                 .then()
                 .log().all()
                 .statusCode(200)
@@ -252,9 +263,9 @@ public class E2ETest {
         final Friend marioFromArango = arangoDBFriends.getFriendWithRelationship("Mario", "Peach");
         assertThat(marioFromArango).isEqualTo(marioEntity.toFriend());
 
-        final TracesUtils.Traces traces = tracesUtils.getTraces("/friends/Peach/establishAFriendship");
+        final TracesUtils.Traces traces = tracesUtils.getTraces("/friends/establishAFriendship");
         assertThat(traces.getOperationNames()).containsExactlyInAnyOrder(
-                "friends/{toFriendId}/establishAFriendship",
+                "friends/establishAFriendship",
                 "PostgresInvitationCodeGeneratedRepository:get",
                 "PostgresFriendRepository:getBy",
                 "PostgresFriendRepository:save");
@@ -273,10 +284,10 @@ public class E2ETest {
 
         // When
         given()
+                .auth().oauth2(luigiAccessToken)
                 .param("invitationCode", invitationCodeGeneratedEntity.invitationCode.toString())
-                .param("executedBy", "Luigi")
                 .when()
-                .post("/friends/Luigi/establishAFriendship")
+                .post("/friends/establishAFriendship")
                 .then()
                 .log().all()
                 .statusCode(200)
@@ -316,9 +327,9 @@ public class E2ETest {
         final Friend marioFromArango = arangoDBFriends.getFriendWithRelationship("Mario", "Luigi");
         assertThat(marioFromArango).isEqualTo(marioEntity.toFriend());
 
-        final TracesUtils.Traces traces = tracesUtils.getTraces("/friends/Luigi/establishAFriendship");
+        final TracesUtils.Traces traces = tracesUtils.getTraces("/friends/establishAFriendship");
         assertThat(traces.getOperationNames()).containsExactlyInAnyOrder(
-                "friends/{toFriendId}/establishAFriendship",
+                "friends/establishAFriendship",
                 "PostgresInvitationCodeGeneratedRepository:get",
                 "PostgresFriendRepository:getBy",
                 "PostgresFriendRepository:save");
@@ -330,6 +341,7 @@ public class E2ETest {
     @Order(8)
     public void should_list_mario_and_peach_mutual_friends() throws Exception {
         given()
+                .auth().oauth2(marioAccessToken)
                 .when()
                 .get("/friends/Mario/inFriendshipsWith/Peach/mutualFriends")
                 .then()
@@ -348,6 +360,7 @@ public class E2ETest {
     @Order(9)
     public void should_list_mario_in_friendships_with() throws Exception {
         given()
+                .auth().oauth2(marioAccessToken)
                 .when()
                 .get("/friends/Mario")
                 .then()
@@ -370,10 +383,10 @@ public class E2ETest {
 
         // When
         given()
+                .auth().oauth2(marioAccessToken)
                 .param("bio", "super plumber")
-                .param("executedBy", "Mario")
                 .when()
-                .post("/friends/Mario/writeBio")
+                .post("/friends/writeBio")
                 .then()
                 .log().all()
                 .statusCode(200)
@@ -395,9 +408,9 @@ public class E2ETest {
         // TODO should wait until bio is updated
         assertThat(arangoDBFriends.getFriend("Mario")).isEqualTo(marioEntity.toFriend());
 
-        final TracesUtils.Traces traces = tracesUtils.getTraces("/friends/Mario/writeBio");
+        final TracesUtils.Traces traces = tracesUtils.getTraces("/friends/writeBio");
         assertThat(traces.getOperationNames()).containsExactlyInAnyOrder(
-                "friends/{friendId}/writeBio",
+                "friends/writeBio",
                 "PostgresFriendRepository:getBy",
                 "PostgresFriendRepository:save");
         assertThat(traces.getHttpStatus()).containsExactlyInAnyOrder(200);

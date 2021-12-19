@@ -90,5 +90,6 @@ services:
       - DB_DATABASE=keycloak
       - DB_USER=keycloak
       - DB_PASSWORD=keycloak
+      - KEYCLOAK_FRONTEND_URL=http://localhost:8082/auth
     depends_on:
       - keycloak-db

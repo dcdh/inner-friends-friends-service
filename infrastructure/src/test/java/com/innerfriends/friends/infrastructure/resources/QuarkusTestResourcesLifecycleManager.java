@@ -202,6 +202,9 @@ public class QuarkusTestResourcesLifecycleManager implements QuarkusTestResource
                     String.format("%s:%s", "localhost", RED_PANDA_CONTAINER.getMappedPort(9092)));
             put("mp.messaging.incoming.keycloak-user-attribute.auto.offset.reset", "earliest");
             // keycloak
+            put("mp.jwt.verify.publickey.location", String.format("http://localhost:%d/auth/realms/public/protocol/openid-connect/certs", KEYCLOAK_CONTAINER.getMappedPort(8080)));
+            put("mp.jwt.verify.issuer", String.format("http://localhost:%d/auth/realms/public", KEYCLOAK_CONTAINER.getMappedPort(8080)));
+            put("smallrye.jwt.verify.audience", "public");
             put("quarkus.oidc.auth-server-url", String.format("http://localhost:%d/auth/realms/public", KEYCLOAK_CONTAINER.getMappedPort(8080)));
             put("quarkus.oidc.client-id", "public");
             put("quarkus.oidc.credentials.secret", "4d8d4bc6-1eda-433b-ab6b-967a3a4bdd95");

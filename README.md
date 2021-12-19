@@ -6,6 +6,10 @@ Friend domain.
 
 `docker` is mandatory to be able to build the project. The infrastructure relie on `testcontainers` to start containers before starting tests and kill and remove them after running the tests.
 
+## Docker
+
+Stop and remove all containers `docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)`
+
 ## Dev local env
 1. run `docker-compose -f docker-compose-dev-run.yaml up && docker-compose -f docker-compose-dev-run.yaml rm --force` to start the stack and next remove container after
 1. run `mvn compile quarkus:dev -f infrastructure/pom.xml`
@@ -23,6 +27,29 @@ Friend domain.
 1. access jaeger ui via `http://localhost:16686/`
 1. access kafka ui via `http://localhost:8081/`
 1. access arangodb ui via `http://localhost:8529/`
+1. access keycloak ui via `http://localhost:8082/`
+
+## Tips
+
+### How to get the token
+
+```
+TOKEN="$(curl http://localhost:8082/auth/realms/public/protocol/openid-connect/token -d grant_type=password -d client_id=public -d client_secret=4d8d4bc6-1eda-433b-ab6b-967a3a4bdd95 -d username=damdamdeo -d password=InnerFriendsDamien1983 -s |jq -r .access_token)"; echo $TOKEN
+```
+
+### How to trace smallrye JWT logs
+
+Run the container with this option
+> quarkus.log.category."io.quarkus.smallrye.jwt.runtime.auth.MpJwtValidator".level=TRACE
+
+### Fix `iss` issue when keycloak is running inside a docker container
+> https://medium.com/swlh/keycloak-openshift-and-emails-a-tale-of-links-with-wrong-base-urls-15f445d4b6a1
+>
+> define `KEYCLOAK_FRONTEND_URL`
+
+```
+Caused by: org.jose4j.jwt.consumer.InvalidJwtException: JWT (claims->{"exp":1639947046,"iat":1639946746,"jti":"67188abb-4196-4274-a374-6368e7bfc463","iss":"http://localhost:8082/auth/realms/public","aud":"account","sub":"608105ae-5f5b-4df1-be2c-7b8ec57eb317","typ":"Bearer","azp":"public","session_state":"b3864dff-4e6e-46a4-ad56-e7c62dec9554","acr":"1","realm_access":{"roles":["offline_access","default-roles-public","uma_authorization"]},"resource_access":{"public":{"roles":["friend"]},"account":{"roles":["manage-account","manage-account-links","view-profile"]}},"scope":"profile email","sid":"b3864dff-4e6e-46a4-ad56-e7c62dec9554","email_verified":false,"friendId":"DamDamDeo","groups":["friend"],"preferred_username":"damdamdeo","email":"damdamdeo@inner-friends.com"}) rejected due to invalid claims or other invalid content. Additional details: [[12] Issuer (iss) claim value (http://localhost:8082/auth/realms/public) doesn't match expected value of http://192.168.254.184:8082/auth/realms/public]
+```
 
 ## Infra
 
