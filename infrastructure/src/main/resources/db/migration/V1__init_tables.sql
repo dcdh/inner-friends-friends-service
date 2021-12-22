@@ -42,29 +42,3 @@ CONSTRAINT T_INVITATION_CODE_GENERATED_pkey PRIMARY KEY (invitationcode)
 );
 
 ALTER TABLE public.T_INVITATION_CODE_GENERATED OWNER TO postgresql;
-
--- outboxevent
-
-CREATE TABLE public.outboxevent (
-id uuid NOT NULL,
-aggregatetype character varying(255) NOT NULL,
-aggregateid character varying(255) NOT NULL,
-type character varying(255) NOT NULL,
-"timestamp" timestamp without time zone NOT NULL,
-payload character varying(8000),
-tracingspancontext character varying(256),
-CONSTRAINT outboxevent_pkey PRIMARY KEY (id)
-);
-
-ALTER TABLE public.outboxevent OWNER TO postgresql;
-
--- T_CONSUMED_MESSAGE
-
-CREATE TABLE public.T_CONSUMED_MESSAGE (
-eventid uuid NOT NULL,
-groupid character varying(255) NOT NULL,
-timeofreceiving timestamp without time zone,
-CONSTRAINT consumedmessage_pkey PRIMARY KEY (eventid, groupid)
-);
-
-ALTER TABLE public.T_CONSUMED_MESSAGE OWNER TO postgresql;
