@@ -53,7 +53,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "mario", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Mario")
+            @Claim(key = "pseudo", value = "Mario")
     })
     public void should_get_friend() {
         // Given
@@ -75,7 +75,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "mario", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Mario")
+            @Claim(key = "pseudo", value = "Mario")
     })
     public void should_get_friend_fail_when_friend_is_unknown() {
         // Given
@@ -95,7 +95,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "mario", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Mario")
+            @Claim(key = "pseudo", value = "Mario")
     })
     public void should_generate_invitation_code() {
         // Given
@@ -120,7 +120,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "mario", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Mario")
+            @Claim(key = "pseudo", value = "Mario")
     })
     public void should_write_bio() {
         // Given
@@ -143,7 +143,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "peach", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Peach")
+            @Claim(key = "pseudo", value = "Peach")
     })
     public void should_establish_a_friendship_to_friend_with_from_friend() {
         // Given
@@ -169,7 +169,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "peach", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Peach")
+            @Claim(key = "pseudo", value = "Peach")
     })
     public void should_establish_a_friendship_to_friend_with_from_friend_fail_when_already_a_friend() {
         // Given
@@ -194,7 +194,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "peach", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Peach")
+            @Claim(key = "pseudo", value = "Peach")
     })
     public void should_establish_a_friendship_to_friend_with_from_friend_fail_when_invitation_code_does_not_exists() {
         // Given
@@ -219,7 +219,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "peach", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Peach")
+            @Claim(key = "pseudo", value = "Peach")
     })
     public void should_establish_a_friendship_to_friend_with_from_friend_fail_when_invitation_code_is_invalide() {
         // Given
@@ -245,7 +245,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "mario", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Mario")
+            @Claim(key = "pseudo", value = "Mario")
     })
     public void should_get_in_friendship_with() {
         // Given
@@ -270,7 +270,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "mario", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Mario")
+            @Claim(key = "pseudo", value = "Mario")
     })
     public void should_get_in_friendship_with_fail_when_not_in_friendship() {
         // Given
@@ -292,7 +292,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "mario", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Mario")
+            @Claim(key = "pseudo", value = "Mario")
     })
     public void should_get_in_friendship_with_mutual_friends() {
         // Given
@@ -317,7 +317,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "mario", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Mario")
+            @Claim(key = "pseudo", value = "Mario")
     })
     public void should_get_friends_of_friend() {
         // Given
@@ -340,7 +340,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "mario", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Mario")
+            @Claim(key = "pseudo", value = "Mario")
     })
     public void should_get_friends_of_friend_when_not_in_friendship_with() {
         // Given
@@ -362,7 +362,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "mario", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Mario")
+            @Claim(key = "pseudo", value = "Mario")
     })
     public void should_get_friends_of_friend_when_not_a_friend_of_friend() {
         // Given
@@ -384,7 +384,7 @@ public class FriendsEndpointTest {
     @Test
     @TestSecurity(user = "mario", roles = "friend")
     @JwtSecurity(claims = {
-            @Claim(key = "friendId", value = "Mario")
+            @Claim(key = "pseudo", value = "Mario")
     })
     public void should_get_friends_of_friend_mutual_friends() {
         // Given

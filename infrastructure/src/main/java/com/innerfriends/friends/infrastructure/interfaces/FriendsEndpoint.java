@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequestScoped
 public class FriendsEndpoint {
 
-    private final String authenticatedFriendId;
+    private final String authenticatedPseudo;
     private final ManagedGetFriendUseCase managedGetFriendUseCase;
     private final ManagedGetInFriendshipWithUseCase managedGetInFriendshipWithUseCase;
     private final ManagedGenerateInvitationCodeUseCase managedGenerateInvitationCodeUseCase;
@@ -28,7 +28,7 @@ public class FriendsEndpoint {
     private final ManagedGetInFriendshipWithMutualFriendsUseCase managedGetInFriendshipWithMutualFriendsUseCase;
     private final ManagedGetFriendsOfFriendMutualFriendsUseCase managedGetFriendsOfFriendMutualFriendsUseCase;
 
-    public FriendsEndpoint(@Claim("friendId") final String authenticatedFriendId,
+    public FriendsEndpoint(@Claim("pseudo") final String authenticatedPseudo,
                            final ManagedGetFriendUseCase managedGetFriendUseCase,
                            final ManagedGetInFriendshipWithUseCase managedGetInFriendshipWithUseCase,
                            final ManagedGenerateInvitationCodeUseCase managedGenerateInvitationCodeUseCase,
@@ -37,7 +37,7 @@ public class FriendsEndpoint {
                            final ManagedGetFriendOfFriendUseCase managedGetFriendOfFriendUseCase,
                            final ManagedGetInFriendshipWithMutualFriendsUseCase managedGetInFriendshipWithMutualFriendsUseCase,
                            final ManagedGetFriendsOfFriendMutualFriendsUseCase managedGetFriendsOfFriendMutualFriendsUseCase) {
-        this.authenticatedFriendId = Objects.requireNonNull(authenticatedFriendId);
+        this.authenticatedPseudo = Objects.requireNonNull(authenticatedPseudo);
         this.managedGetFriendUseCase = Objects.requireNonNull(managedGetFriendUseCase);
         this.managedGetInFriendshipWithUseCase = Objects.requireNonNull(managedGetInFriendshipWithUseCase);
         this.managedGenerateInvitationCodeUseCase = Objects.requireNonNull(managedGenerateInvitationCodeUseCase);
@@ -60,7 +60,7 @@ public class FriendsEndpoint {
     @Path("/generateInvitationCode")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public InvitationCodeDTO generateInvitationCode() {
-        return new InvitationCodeDTO(managedGenerateInvitationCodeUseCase.execute(new GenerateInvitationCodeCommand(new FromFriendId(authenticatedFriendId))).invitationCode());
+        return new InvitationCodeDTO(managedGenerateInvitationCodeUseCase.execute(new GenerateInvitationCodeCommand(new FromFriendId(authenticatedPseudo))).invitationCode());
     }
 
     @POST
@@ -68,7 +68,7 @@ public class FriendsEndpoint {
     @Path("/writeBio")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public FriendDTO writeBio(@FormParam("bio") final String bio) {
-        return new FriendDTO(managedWriteBioUseCase.execute(new WriteBioCommand(new FriendId(authenticatedFriendId), new Bio(bio), new ExecutedBy(authenticatedFriendId))));
+        return new FriendDTO(managedWriteBioUseCase.execute(new WriteBioCommand(new FriendId(authenticatedPseudo), new Bio(bio), new ExecutedBy(authenticatedPseudo))));
     }
 
     @POST
@@ -77,7 +77,7 @@ public class FriendsEndpoint {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public FriendDTO establishAFriendship(@FormParam("invitationCode") final String invitationCode) {
         return new FriendDTO(managedEstablishAFriendshipToFriendWithFromFriendUseCase.execute(new EstablishAFriendshipToFriendWithFromFriendCommand(
-                new ToFriendId(authenticatedFriendId), new InvitationCode(UUID.fromString(invitationCode)), new ExecutedBy(authenticatedFriendId))));
+                new ToFriendId(authenticatedPseudo), new InvitationCode(UUID.fromString(invitationCode)), new ExecutedBy(authenticatedPseudo))));
     }
 
     @GET

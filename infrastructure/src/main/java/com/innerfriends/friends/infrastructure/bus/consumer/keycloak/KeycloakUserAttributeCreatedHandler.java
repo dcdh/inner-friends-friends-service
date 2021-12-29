@@ -29,7 +29,7 @@ public class KeycloakUserAttributeCreatedHandler {
     @Transactional
     public void onUserAttributeCreated(final String name, final String value) {
         LOG.info("Received created attribute '{}' with value '{}'", name, value);
-        if ("friendId".equals(name)) {
+        if ("pseudo".equals(name)) {
             if (entityManager.find(FriendEntity.class, value) == null) {
                 managedRegisterNewFriendIntoThePlatformUseCase.execute(new RegisterNewFriendIntoThePlatformCommand(new NewPseudoId(value)));
             }
