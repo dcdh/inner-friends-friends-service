@@ -8,14 +8,16 @@ import java.util.Objects;
 @RegisterForReflection
 public final class FriendOfFriendDTO {
 
-    public final String pseudo;
+    public final String friendOfFriendId;
     public final String bio;
     public final Long version;
+    public final Boolean alreadyInFriendship;
 
     public FriendOfFriendDTO(final FriendOfFriend friendOfFriend) {
-        this.pseudo = friendOfFriend.friendOfFriendId().pseudo();
+        this.friendOfFriendId = friendOfFriend.friendOfFriendId().pseudo();
         this.bio = friendOfFriend.bio().content();
         this.version = friendOfFriend.version().value();
+        this.alreadyInFriendship = friendOfFriend.alreadyInFriendship();
     }
 
     @Override
@@ -23,22 +25,24 @@ public final class FriendOfFriendDTO {
         if (this == o) return true;
         if (!(o instanceof FriendOfFriendDTO)) return false;
         final FriendOfFriendDTO that = (FriendOfFriendDTO) o;
-        return Objects.equals(pseudo, that.pseudo) &&
+        return Objects.equals(friendOfFriendId, that.friendOfFriendId) &&
                 Objects.equals(bio, that.bio) &&
-                Objects.equals(version, that.version);
+                Objects.equals(version, that.version) &&
+                Objects.equals(alreadyInFriendship, that.alreadyInFriendship);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pseudo, bio, version);
+        return Objects.hash(friendOfFriendId, bio, version, alreadyInFriendship);
     }
 
     @Override
     public String toString() {
         return "FriendOfFriendDTO{" +
-                "pseudo='" + pseudo + '\'' +
+                "friendOfFriendId='" + friendOfFriendId + '\'' +
                 ", bio='" + bio + '\'' +
                 ", version=" + version +
+                ", alreadyInFriendship=" + alreadyInFriendship +
                 '}';
     }
 }
