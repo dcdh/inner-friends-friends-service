@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 // /!\ do not use Velocypack it does not seems to work in native mode !
 //===========================================================================
 @ApplicationScoped
-public class ArangoDBMutualFriendsRepository implements MutualFriendsRepository {
+public class ArangoDBRepositories implements MutualFriendsRepository, FriendMayKnowRepository {
 
-    private static final Logger LOG = Logger.getLogger(ArangoDBMutualFriendsRepository.class);
+    private static final Logger LOG = Logger.getLogger(ArangoDBRepositories.class);
 
     public static final String FRIENDS = "FRIENDS";
     public static final String IN_FRIENDSHIP_WITH = "IN_FRIENDSHIP_WITH";
@@ -35,8 +35,8 @@ public class ArangoDBMutualFriendsRepository implements MutualFriendsRepository 
     private final String dbName;
     private ArangoDatabase arangoDatabase;
 
-    public ArangoDBMutualFriendsRepository(final ArangoDB arangoDB,
-                                           @ConfigProperty(name = "arangodb.dbName") final String dbName) {
+    public ArangoDBRepositories(final ArangoDB arangoDB,
+                                @ConfigProperty(name = "arangodb.dbName") final String dbName) {
         this.arangoDB = Objects.requireNonNull(arangoDB);
         this.dbName = Objects.requireNonNull(dbName);
     }
@@ -117,6 +117,64 @@ public class ArangoDBMutualFriendsRepository implements MutualFriendsRepository 
             return cursor.stream()
                     .map(MutualFriendId::new)
                     .collect(Collectors.toList());
+        } catch (final ArangoDBException arangoDBException) {
+            LOG.error(arangoDBException);
+            throw arangoDBException;
+        }
+    }
+
+    @NewSpan
+    @Override
+    // remove 'friends' from 'friends of friends'
+    public List<FriendMayKnowId> mayKnow(final FriendId friendId, final Long nbOf) {
+        try {
+            final String query =
+                    "LET friends = (FOR v IN 1..1 OUTBOUND @friendId GRAPH @graph RETURN v._key)\n" +
+                    "LET friendsOfFriend = (FOR v IN 2..2 OUTBOUND @friendId GRAPH @graph RETURN v._key)\n" +
+                    "LET mayKnow = REMOVE_VALUES(friendsOfFriend,friends)\n" +
+                    "FOR m IN mayKnow LIMIT @nbOf RETURN DISTINCT m";
+            final Map<String, Object> bindVars = Map.of(
+                    "friendId", String.format("%s/%s", FRIENDS, friendId.pseudo()),
+                    "nbOf", nbOf,
+                    "graph", FRIENDS);
+            final ArangoCursor<String> cursor = arangoDB.db(dbName).query(query, bindVars, null, String.class);
+            return cursor.stream()
+                    .map(FriendMayKnowId::new)
+                    .filter(friendMayKnowId -> !friendMayKnowId.pseudo().equals(friendId.pseudo()))
+                    .collect(Collectors.toList());
+        } catch (final ArangoDBException arangoDBException) {
+            LOG.error(arangoDBException);
+            throw arangoDBException;
+        }
+    }
+
+    @NewSpan
+    @Override
+    // friends of friendMayKnowId which are the friends of friendId
+    public FriendMayKnow get(final FriendId friendId, final FriendMayKnowId friendMayKnowId) {
+        try {
+            final String query =
+                    "LET friendFriends = (FOR v IN 1..1 OUTBOUND @friendId GRAPH @graph RETURN v._key)\n" +
+                    "LET friendMayKnowFriends = (FOR v IN 1..1 OUTBOUND @friendMayKnowId GRAPH @graph RETURN v._key)\n" +
+                    "LET mutualFriends = INTERSECTION(friendFriends,friendMayKnowFriends)\n" +
+                    "FOR mutualFriend IN mutualFriends RETURN DISTINCT mutualFriend";// DISTINCT: optimization. Complied with domain
+            final Map<String, Object> bindVars = Map.of(
+                    "friendId", String.format("%s/%s", FRIENDS, friendId.pseudo()),
+                    "friendMayKnowId", String.format("%s/%s", FRIENDS, friendMayKnowId.pseudo()),
+                    "graph", FRIENDS);
+            final ArangoCursor<String> cursor = arangoDB.db(dbName).query(query, bindVars, null, String.class);
+            List<MutualFriendId> mutualFriendIds = cursor.stream()
+                    .map(MutualFriendId::new)
+                    .filter(mutualFriendId -> !mutualFriendId.pseudo().equals(friendId.pseudo()))
+                    .collect(Collectors.toList());
+            return Optional.of(arangoDB.db(dbName).getDocument(String.format("%s/%s", FRIENDS, friendMayKnowId.pseudo()), BaseDocument.class))
+                    .map(baseDocument -> new FriendMayKnow(
+                            new FriendMayKnowId(baseDocument.getKey()),
+                            new Bio((String) baseDocument.getAttribute("bio")),
+                            new Version((Long) baseDocument.getAttribute("version")),
+                            mutualFriendIds
+                    ))
+                    .get();
         } catch (final ArangoDBException arangoDBException) {
             LOG.error(arangoDBException);
             throw arangoDBException;

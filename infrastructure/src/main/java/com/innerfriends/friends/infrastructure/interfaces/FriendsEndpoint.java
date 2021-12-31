@@ -10,8 +10,10 @@ import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Path("/friends")
 @Authenticated
@@ -27,6 +29,8 @@ public class FriendsEndpoint {
     private final ManagedGetFriendOfFriendUseCase managedGetFriendOfFriendUseCase;
     private final ManagedGetInFriendshipWithMutualFriendsUseCase managedGetInFriendshipWithMutualFriendsUseCase;
     private final ManagedGetFriendsOfFriendMutualFriendsUseCase managedGetFriendsOfFriendMutualFriendsUseCase;
+    private final GetFriendMayKnowUseCase getFriendMayKnowUseCase;
+    private final ListFriendMayKnowUseCase listFriendMayKnowUseCase;
 
     public FriendsEndpoint(@Claim("pseudo") final String authenticatedPseudo,
                            final ManagedGetFriendUseCase managedGetFriendUseCase,
@@ -36,7 +40,9 @@ public class FriendsEndpoint {
                            final ManagedEstablishAFriendshipToFriendWithFromFriendUseCase managedEstablishAFriendshipToFriendWithFromFriendUseCase,
                            final ManagedGetFriendOfFriendUseCase managedGetFriendOfFriendUseCase,
                            final ManagedGetInFriendshipWithMutualFriendsUseCase managedGetInFriendshipWithMutualFriendsUseCase,
-                           final ManagedGetFriendsOfFriendMutualFriendsUseCase managedGetFriendsOfFriendMutualFriendsUseCase) {
+                           final ManagedGetFriendsOfFriendMutualFriendsUseCase managedGetFriendsOfFriendMutualFriendsUseCase,
+                           final GetFriendMayKnowUseCase getFriendMayKnowUseCase,
+                           final ListFriendMayKnowUseCase listFriendMayKnowUseCase) {
         this.authenticatedPseudo = Objects.requireNonNull(authenticatedPseudo);
         this.managedGetFriendUseCase = Objects.requireNonNull(managedGetFriendUseCase);
         this.managedGetInFriendshipWithUseCase = Objects.requireNonNull(managedGetInFriendshipWithUseCase);
@@ -46,6 +52,8 @@ public class FriendsEndpoint {
         this.managedGetFriendOfFriendUseCase = Objects.requireNonNull(managedGetFriendOfFriendUseCase);
         this.managedGetInFriendshipWithMutualFriendsUseCase = Objects.requireNonNull(managedGetInFriendshipWithMutualFriendsUseCase);
         this.managedGetFriendsOfFriendMutualFriendsUseCase = Objects.requireNonNull(managedGetFriendsOfFriendMutualFriendsUseCase);
+        this.getFriendMayKnowUseCase = Objects.requireNonNull(getFriendMayKnowUseCase);
+        this.listFriendMayKnowUseCase = Objects.requireNonNull(listFriendMayKnowUseCase);
     }
 
     @GET
@@ -53,6 +61,24 @@ public class FriendsEndpoint {
     @Path("/{friendId}")
     public FriendDTO getFriend(@PathParam("friendId") final String friendId) {
         return new FriendDTO(managedGetFriendUseCase.execute(new GetFriendCommand(new FriendId(friendId))));
+    }
+
+    @POST
+    @RolesAllowed("friend")
+    @Path("/mayKnow")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public List<String> mayKnow(@FormParam("nbOf") final Long nbOf) {
+        return listFriendMayKnowUseCase.execute(new ListFriendMayKnowCommand(new FriendId(authenticatedPseudo), nbOf))
+                .stream()
+                .map(FriendMayKnowId::pseudo)
+                .collect(Collectors.toList());
+    }
+
+    @GET
+    @RolesAllowed("friend")
+    @Path("/mayKnow/{mayKnowId}")
+    public FriendMayKnowDTO getMayKnow(@PathParam("mayKnowId") final String mayKnowId) {
+        return new FriendMayKnowDTO(getFriendMayKnowUseCase.execute(new GetFriendMayKnowCommand(new FriendId(authenticatedPseudo), new FriendMayKnowId(mayKnowId))));
     }
 
     @POST

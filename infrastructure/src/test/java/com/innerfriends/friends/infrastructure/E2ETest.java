@@ -351,7 +351,7 @@ public class E2ETest {
         final TracesUtils.Traces traces = tracesUtils.getTraces("/friends/Mario/inFriendshipsWith/Peach/mutualFriends");
         assertThat(traces.getOperationNames()).containsExactlyInAnyOrder(
                 "friends/{friendId}/inFriendshipsWith/{inFriendshipWithId}/mutualFriends",
-                "ArangoDBMutualFriendsRepository:getMutualFriends");
+                "ArangoDBRepositories:getMutualFriends");
         assertThat(traces.getHttpStatus()).containsExactlyInAnyOrder(200);
         assertThat(traces.getOperationNamesInError()).isEmpty();
     }
@@ -413,6 +413,45 @@ public class E2ETest {
                 "friends/writeBio",
                 "PostgresFriendRepository:getBy",
                 "PostgresFriendRepository:save");
+        assertThat(traces.getHttpStatus()).containsExactlyInAnyOrder(200);
+        assertThat(traces.getOperationNamesInError()).isEmpty();
+    }
+
+    @Test
+    @Order(11)
+    public void should_mario_list_may_know_friends() throws Exception {
+        given()
+                .auth().oauth2(marioAccessToken)
+                .param("nbOf", 2l)
+                .when()
+                .post("/friends/mayKnow")
+                .then()
+                .log().all()
+                .statusCode(200);
+
+        final TracesUtils.Traces traces = tracesUtils.getTraces("/friends/mayKnow");
+        assertThat(traces.getOperationNames()).containsExactlyInAnyOrder(
+                "friends/mayKnow",
+                "ArangoDBRepositories:mayKnow");
+        assertThat(traces.getHttpStatus()).containsExactlyInAnyOrder(200);
+        assertThat(traces.getOperationNamesInError()).isEmpty();
+    }
+
+    @Test
+    @Order(12)
+    public void should_get_peach_may_know_friend() throws Exception {
+        given()
+                .auth().oauth2(marioAccessToken)
+                .when()
+                .get("/friends/mayKnow/Peach")
+                .then()
+                .log().all()
+                .statusCode(200);
+
+        final TracesUtils.Traces traces = tracesUtils.getTraces("/friends/mayKnow/Peach");
+        assertThat(traces.getOperationNames()).containsExactlyInAnyOrder(
+                "friends/mayKnow/{mayKnowId}",
+                "ArangoDBRepositories:get");
         assertThat(traces.getHttpStatus()).containsExactlyInAnyOrder(200);
         assertThat(traces.getOperationNamesInError()).isEmpty();
     }

@@ -2,7 +2,7 @@ package com.innerfriends.friends.infrastructure.bus.consumer.friends.projection.
 
 import com.innerfriends.friends.domain.*;
 import com.innerfriends.friends.infrastructure.InstantProvider;
-import com.innerfriends.friends.infrastructure.arrangodb.ArangoDBMutualFriendsRepository;
+import com.innerfriends.friends.infrastructure.arrangodb.ArangoDBRepositories;
 import com.innerfriends.friends.infrastructure.opentelemetry.NewSpan;
 import com.innerfriends.friends.infrastructure.postgres.MessageLogRepository;
 import com.innerfriends.friends.infrastructure.outbox.*;
@@ -30,14 +30,14 @@ public class FriendsGraphProjectionHandler {
     private static final String IN_FRIENDSHIPS_WITH = "inFriendshipsWith";
     private static final String ESTABLISHED_FRIENDSHIP_WITH = "establishedFriendshipWith";
 
-    private final ArangoDBMutualFriendsRepository arangoDBMutualFriendsRepository;
+    private final ArangoDBRepositories arangoDBRepositories;
     private final MessageLogRepository messageLogRepository;
     private final InstantProvider instantProvider;
 
-    public FriendsGraphProjectionHandler(final ArangoDBMutualFriendsRepository arangoDBMutualFriendsRepository,
+    public FriendsGraphProjectionHandler(final ArangoDBRepositories arangoDBRepositories,
                                          final MessageLogRepository messageLogRepository,
                                          final InstantProvider instantProvider) {
-        this.arangoDBMutualFriendsRepository = Objects.requireNonNull(arangoDBMutualFriendsRepository);
+        this.arangoDBRepositories = Objects.requireNonNull(arangoDBRepositories);
         this.messageLogRepository = Objects.requireNonNull(messageLogRepository);
         this.instantProvider = Objects.requireNonNull(instantProvider);
     }
@@ -63,24 +63,24 @@ public class FriendsGraphProjectionHandler {
                     .map(InFriendshipWithId::new)
                     .collect(Collectors.toList());
             final Version version = new Version(eventPayload.getLong(VERSION));
-            arangoDBMutualFriendsRepository.registerNewFriendIntoThePlatform(friendId, inFriendshipsWith, version);
+            arangoDBRepositories.registerNewFriendIntoThePlatform(friendId, inFriendshipsWith, version);
         } else if (BioWrittenEvent.TYPE.equals(eventType)) {
             final FriendId friendId = new FriendId(eventPayload.getString(FRIEND_ID));
             final Bio bio = new Bio(eventPayload.getString(BIO));
             final Version version = new Version(eventPayload.getLong(VERSION));
-            arangoDBMutualFriendsRepository.writeBio(friendId, bio, version);
+            arangoDBRepositories.writeBio(friendId, bio, version);
         } else if (InvitationCodeGeneratedEvent.TYPE.equals(eventType)) {
             // nothing to do
         } else if (ToFriendEstablishedAFriendshipWithFromFriendEvent.TYPE.equals(eventType)) {
             final FriendId friendId = new FriendId(eventPayload.getString(FRIEND_ID));
             final EstablishedFriendshipWith establishedFriendshipWith = new EstablishedFriendshipWith(new InFriendshipWithId(eventPayload.getString(ESTABLISHED_FRIENDSHIP_WITH)));
             final Version version = new Version(eventPayload.getLong(VERSION));
-            arangoDBMutualFriendsRepository.establishFriendshipWith(friendId, establishedFriendshipWith, version);
+            arangoDBRepositories.establishFriendshipWith(friendId, establishedFriendshipWith, version);
         } else if (FromFriendEstablishedAFriendshipWithToFriendEvent.TYPE.equals(eventType)) {
             final FriendId friendId = new FriendId(eventPayload.getString(FRIEND_ID));
             final EstablishedFriendshipWith establishedFriendshipWith = new EstablishedFriendshipWith(new InFriendshipWithId(eventPayload.getString(ESTABLISHED_FRIENDSHIP_WITH)));
             final Version version = new Version(eventPayload.getLong(VERSION));
-            arangoDBMutualFriendsRepository.establishFriendshipWith(friendId, establishedFriendshipWith, version);
+            arangoDBRepositories.establishFriendshipWith(friendId, establishedFriendshipWith, version);
         } else {
             LOG.info("Unknown event type '{}' for event id '{}', will be marked as processed.", eventType, eventId);
         }

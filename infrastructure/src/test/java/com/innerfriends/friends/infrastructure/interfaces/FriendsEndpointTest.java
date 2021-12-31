@@ -50,6 +50,12 @@ public class FriendsEndpointTest {
     @InjectMock
     private ManagedGetFriendsOfFriendMutualFriendsUseCase managedGetFriendsOfFriendMutualFriendsUseCase;
 
+    @InjectMock
+    private GetFriendMayKnowUseCase getFriendMayKnowUseCase;
+
+    @InjectMock
+    private ListFriendMayKnowUseCase listFriendMayKnowUseCase;
+
     @Test
     @TestSecurity(user = "mario", roles = "friend")
     @JwtSecurity(claims = {
@@ -399,6 +405,55 @@ public class FriendsEndpointTest {
         final String jsonResponse = given()
                 .when()
                 .get("/friends/Mario/inFriendshipsWith/DonkeyKong/friendsOfFriend/Pauline/mutualFriends")
+                .then()
+                .log().all()
+                .statusCode(200)
+                .extract().response().body().prettyPrint();
+        verifyJson(jsonResponse);
+    }
+
+    @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "pseudo", value = "Mario")
+    })
+    public void should_get_friend_may_know() {
+        // Given
+        doReturn(new FriendMayKnow(
+                new FriendMayKnowId("Peach"),
+                new Bio("I am a princess"),
+                new Version(1l),
+                List.of(new MutualFriendId("Luigi"))
+        ))
+                .when(getFriendMayKnowUseCase)
+                .execute(new GetFriendMayKnowCommand(new FriendId("Mario"), new FriendMayKnowId("Peach")));
+
+        // When && Then
+        final String jsonResponse = given()
+                .when()
+                .get("/friends/mayKnow/Peach")
+                .then()
+                .log().all()
+                .statusCode(200)
+                .extract().response().body().prettyPrint();
+        verifyJson(jsonResponse);
+    }
+
+    @Test
+    @TestSecurity(user = "mario", roles = "friend")
+    @JwtSecurity(claims = {
+            @Claim(key = "pseudo", value = "Mario")
+    })
+    public void should_list_friends_may_know() {
+        // Given
+        doReturn(List.of(new FriendMayKnowId("Peach")))
+                .when(listFriendMayKnowUseCase).execute(new ListFriendMayKnowCommand(new FriendId("Mario"), 2l));
+
+        // When && Then
+        final String jsonResponse = given()
+                .param("nbOf", 2l)
+                .when()
+                .post("/friends/mayKnow")
                 .then()
                 .log().all()
                 .statusCode(200)

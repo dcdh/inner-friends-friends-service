@@ -22,14 +22,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 @ExtendWith(MockitoExtension.class)
-public class ArangoDBMutualFriendsRepositoryTest {
+public class ArangoDBRepositoriesTest {
 
     public static final List<String> DELETES = List.of(
             "FOR f IN FRIENDS FILTER f._id != 'FRIENDS/DamDamDeo' REMOVE f IN FRIENDS",
             "FOR f IN IN_FRIENDSHIP_WITH REMOVE f IN IN_FRIENDSHIP_WITH");
 
     @Inject
-    ArangoDBMutualFriendsRepository arangoDBMutualFriendsRepository;
+    ArangoDBRepositories arangoDBRepositories;
 
     @Inject
     ArangoDB arangoDB;
@@ -62,7 +62,7 @@ public class ArangoDBMutualFriendsRepositoryTest {
         createRelationship("Mario", "Toad");
 
         // When
-        final List<MutualFriendId> mutualFriends = arangoDBMutualFriendsRepository.getMutualFriends(new FriendId("Mario"), new InFriendshipWithId("DonkeyKong"));
+        final List<MutualFriendId> mutualFriends = arangoDBRepositories.getMutualFriends(new FriendId("Mario"), new InFriendshipWithId("DonkeyKong"));
 
         // Then
         assertThat(mutualFriends)
@@ -89,11 +89,70 @@ public class ArangoDBMutualFriendsRepositoryTest {
         createRelationship("DiddyKong", "Luigi");
 
         // When
-        final List<MutualFriendId> mutualFriends = arangoDBMutualFriendsRepository.getMutualFriends(new FriendId("Mario"),
+        final List<MutualFriendId> mutualFriends = arangoDBRepositories.getMutualFriends(new FriendId("Mario"),
                 new InFriendshipWithId("DonkeyKong"), new FriendOfFriendId("DiddyKong"));
 
+        // Then
         assertThat(mutualFriends)
                 .containsExactly(new MutualFriendId("Luigi"));
+    }
+
+    @Test
+    public void should_list_may_know_friends() {
+        // Given
+        createFriend("Mario");
+        createFriend("DonkeyKong");
+        createFriend("DiddyKong");
+        createFriend("Pauline");
+        createFriend("Luigi");
+        createFriend("Toad");
+        createFriend("Bowser");
+        createRelationship("Mario", "DonkeyKong");
+        createRelationship("DonkeyKong", "Pauline");
+        createRelationship("DonkeyKong", "Luigi");
+        createRelationship("Mario", "Pauline");
+        createRelationship("Mario", "Luigi");
+        createRelationship("Mario", "Toad");
+        createRelationship("DonkeyKong", "DiddyKong");
+        createRelationship("DiddyKong", "Luigi");
+
+        // When
+        final List<FriendMayKnowId> friendMayKnowIds = arangoDBRepositories.mayKnow(new FriendId("Mario"), 2l);
+
+        // Then
+        assertThat(friendMayKnowIds).containsExactly(new FriendMayKnowId("DiddyKong"));
+    }
+
+    @Test
+    public void should_get_friend_may_know() {
+        // Given
+        createFriend("Mario");
+        createFriend("DonkeyKong");
+        createFriend("DiddyKong");
+        createFriend("Pauline");
+        createFriend("Luigi");
+        createFriend("Toad");
+        createFriend("Bowser");
+        createRelationship("Mario", "DonkeyKong");
+        createRelationship("DonkeyKong", "Pauline");
+        createRelationship("DonkeyKong", "Luigi");
+        createRelationship("Mario", "Pauline");
+        createRelationship("Mario", "Luigi");
+        createRelationship("Mario", "Toad");
+        createRelationship("DonkeyKong", "DiddyKong");
+        createRelationship("DiddyKong", "Luigi");
+
+        // When
+        final FriendMayKnow friendMayKnow = arangoDBRepositories.get(new FriendId("Mario"), new FriendMayKnowId("DiddyKong"));
+
+        // Then
+        assertThat(friendMayKnow).isEqualTo(
+                new FriendMayKnow(
+                        new FriendMayKnowId("DiddyKong"),
+                        new Bio(""),
+                        new Version(0l),
+                        List.of(new MutualFriendId("Luigi"))
+                ));
     }
 
     @Test
@@ -101,7 +160,7 @@ public class ArangoDBMutualFriendsRepositoryTest {
         // Given
 
         // When
-        arangoDBMutualFriendsRepository.registerNewFriendIntoThePlatform(new FriendId("Mario"),
+        arangoDBRepositories.registerNewFriendIntoThePlatform(new FriendId("Mario"),
                 List.of(new InFriendshipWithId("DamDamDeo")),
                 new Version(0l));
 
@@ -118,7 +177,7 @@ public class ArangoDBMutualFriendsRepositoryTest {
         createFriend("Mario");
 
         // When
-        arangoDBMutualFriendsRepository.writeBio(new FriendId("Mario"), new Bio("super plumber"), new Version(1l));
+        arangoDBRepositories.writeBio(new FriendId("Mario"), new Bio("super plumber"), new Version(1l));
 
         // Then
         final BaseDocument friend = getFriend("Mario");
@@ -134,7 +193,7 @@ public class ArangoDBMutualFriendsRepositoryTest {
         createFriend("Luigi");
 
         // When
-        arangoDBMutualFriendsRepository.establishFriendshipWith(
+        arangoDBRepositories.establishFriendshipWith(
                 new FriendId("Mario"),
                 new EstablishedFriendshipWith(new InFriendshipWithId("Luigi")),
                 new Version(1l));

@@ -13,6 +13,18 @@ public class Application {
 
     @Produces
     @ApplicationScoped
+    public ListFriendMayKnowUseCase listFriendMayKnowUseCaseProducer(final FriendMayKnowRepository friendMayKnowRepository) {
+        return new ListFriendMayKnowUseCase(friendMayKnowRepository);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public GetFriendMayKnowUseCase getFriendMayKnowUseCaseProducer(final FriendMayKnowRepository friendMayKnowRepository) {
+        return new GetFriendMayKnowUseCase(friendMayKnowRepository);
+    }
+
+    @Produces
+    @ApplicationScoped
     public EstablishAFriendshipFromFriendWithToFriendUseCase establishAFriendshipFromFriendWithToFriendUseCaseProducer(final FriendRepository friendRepository) {
         return new EstablishAFriendshipFromFriendWithToFriendUseCase(friendRepository);
     }
